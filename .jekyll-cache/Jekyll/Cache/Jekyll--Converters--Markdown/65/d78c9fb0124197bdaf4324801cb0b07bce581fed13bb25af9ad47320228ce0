@@ -1,0 +1,757 @@
+I""�<ul id="markdown-toc">
+  <li><a href="#一产品" id="markdown-toc-一产品"><code class="highlighter-rouge">一</code>、产品</a></li>
+  <li><a href="#二jdk发布与调用" id="markdown-toc-二jdk发布与调用"><code class="highlighter-rouge">二</code>、JDK发布与调用</a>    <ul>
+      <li><a href="#1发布" id="markdown-toc-1发布"><code class="highlighter-rouge">1</code>.发布</a>        <ul>
+          <li><a href="#定义接口" id="markdown-toc-定义接口">定义接口</a></li>
+          <li><a href="#实现接口" id="markdown-toc-实现接口">实现接口</a></li>
+          <li><a href="#发布服务" id="markdown-toc-发布服务">发布服务</a></li>
+        </ul>
+      </li>
+      <li><a href="#2调用" id="markdown-toc-2调用"><code class="highlighter-rouge">2</code>.调用</a>        <ul>
+          <li><a href="#静态客户端" id="markdown-toc-静态客户端">静态客户端</a></li>
+          <li><a href="#动态代理客户端" id="markdown-toc-动态代理客户端">动态代理客户端</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#三cxf" id="markdown-toc-三cxf"><code class="highlighter-rouge">三</code>、CXF</a>    <ul>
+      <li><a href="#1soap风格" id="markdown-toc-1soap风格"><code class="highlighter-rouge">1.</code>SOAP风格</a>        <ul>
+          <li><a href="#定义接口-1" id="markdown-toc-定义接口-1">定义接口</a></li>
+          <li><a href="#实现接口-1" id="markdown-toc-实现接口-1">实现接口</a></li>
+          <li><a href="#发布服务-1" id="markdown-toc-发布服务-1">发布服务</a>            <ul>
+              <li><a href="#jetty发布" id="markdown-toc-jetty发布">①Jetty发布</a></li>
+              <li><a href="#web发布" id="markdown-toc-web发布">②Web发布</a></li>
+            </ul>
+          </li>
+          <li><a href="#调用服务" id="markdown-toc-调用服务">调用服务</a>            <ul>
+              <li><a href="#静态客户端-1" id="markdown-toc-静态客户端-1">①静态客户端</a></li>
+              <li><a href="#动态代理客户端-1" id="markdown-toc-动态代理客户端-1">②动态代理客户端</a></li>
+              <li><a href="#通用动态代理客户端" id="markdown-toc-通用动态代理客户端">③通用动态代理客户端</a></li>
+              <li><a href="#spring客户端" id="markdown-toc-spring客户端">④Spring客户端</a></li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li><a href="#2rest风格" id="markdown-toc-2rest风格"><code class="highlighter-rouge">2</code>.REST风格</a>        <ul>
+          <li><a href="#定义接口-2" id="markdown-toc-定义接口-2">定义接口</a></li>
+          <li><a href="#实现接口-2" id="markdown-toc-实现接口-2">实现接口</a></li>
+          <li><a href="#发布服务-2" id="markdown-toc-发布服务-2">发布服务</a>            <ul>
+              <li><a href="#jetty发布-1" id="markdown-toc-jetty发布-1">①jetty发布</a></li>
+              <li><a href="#web发布-1" id="markdown-toc-web发布-1">②web发布</a></li>
+            </ul>
+          </li>
+          <li><a href="#调用服务-1" id="markdown-toc-调用服务-1">调用服务</a>            <ul>
+              <li><a href="#jax-rs-10-客户端" id="markdown-toc-jax-rs-10-客户端">①JAX-RS 1.0 客户端</a></li>
+              <li><a href="#jax-rs-20-客户端" id="markdown-toc-jax-rs-20-客户端">②JAX-RS 2.0 客户端</a></li>
+              <li><a href="#webclient-客户端" id="markdown-toc-webclient-客户端">③WebClient 客户端</a></li>
+              <li><a href="#ajax客户端" id="markdown-toc-ajax客户端">④AJAX客户端</a></li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li><a href="#警告" id="markdown-toc-警告"><code class="highlighter-rouge">～～</code>警告<code class="highlighter-rouge">～～</code></a></li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>WSDL</strong></p>
+
+<p><code class="highlighter-rouge">definitions</code> 为根节点，属性为</p>
+
+<blockquote>
+  <p><code class="highlighter-rouge">name</code>：WS 名称，默认为“实现类 + Service”</p>
+
+  <p><code class="highlighter-rouge">targetNamespace</code>：WS 目标命名空间，默认为“WS 实现类对应包名倒排后构成的地址”</p>
+</blockquote>
+
+<p><code class="highlighter-rouge">definitions</code>的5个子节点</p>
+
+<blockquote>
+  <p><code class="highlighter-rouge">types</code>：描述了 WS 中所涉及的数据类型</p>
+
+  <p><code class="highlighter-rouge">portType</code>：定义了 WS 接口名称<code class="highlighter-rouge">portType.name</code>（<code class="highlighter-rouge">endpointInterface</code>默认为“WS 实现类所实现的接口”），及其操作名称，以及每个操作的输入与输出消息</p>
+
+  <p><code class="highlighter-rouge">message</code>：对相关消息进行了定义（供 types 与 portType 使用）</p>
+
+  <p><code class="highlighter-rouge">binding</code>：提供了对 WS 的数据绑定方式</p>
+
+  <p><code class="highlighter-rouge">service</code>：WS 名称及其端口名称<code class="highlighter-rouge">service_port.name</code>（<code class="highlighter-rouge">portName</code>默认为“WS 实现类 + Port”），以及对应的 WSDL 地址</p>
+</blockquote>
+
+<p><strong>SOAP</strong></p>
+
+<p><code class="highlighter-rouge">header</code></p>
+
+<p><code class="highlighter-rouge">body</code></p>
+
+<hr />
+
+<h1 id="一产品"><code class="highlighter-rouge">一</code>、产品</h1>
+
+<p><strong>soap</strong>风格 (JAX-WS规范JSR-224)</p>
+
+<p>JAX-WS RI：https://jax-ws.java.net/    Oracle 官方提供的实现</p>
+
+<p>Axis：http://axis.apache.org/</p>
+
+<p>CXF：http://cxf.apache.org/</p>
+
+<p><strong>rest</strong>风格 (JAX-RS规范JSR-339)</p>
+
+<p>Jersey：https://jersey.java.net/    Oracle 官方提供的实现</p>
+
+<p>Restlet：http://restlet.com/</p>
+
+<p>RESTEasy：http://resteasy.jboss.org/</p>
+
+<p>CXF：http://cxf.apache.org/</p>
+
+<h1 id="二jdk发布与调用"><code class="highlighter-rouge">二</code>、JDK发布与调用</h1>
+
+<h2 id="1发布"><code class="highlighter-rouge">1</code>.发布</h2>
+
+<h3 id="定义接口">定义接口</h3>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//此注解必须</span>
+<span class="nd">@WebService</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">HelloService</span> <span class="o">{</span>
+    <span class="nc">String</span> <span class="nf">say</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h3 id="实现接口">实现接口</h3>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@WebService</span><span class="o">(</span><span class="n">serviceName</span> <span class="o">=</span> <span class="s">"HelloService"</span><span class="o">,</span>
+        <span class="n">portName</span> <span class="o">=</span> <span class="s">"HelloServicePort"</span><span class="o">,</span>
+        <span class="n">endpointInterface</span> <span class="o">=</span> <span class="s">"org.sllx.practice.jdkws.HelloService"</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">HelloServiceImpl</span> <span class="kd">implements</span> <span class="nc">HelloService</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="nc">String</span> <span class="nf">say</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="s">"helloWorld"</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h3 id="发布服务">发布服务</h3>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Server</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">){</span>
+        <span class="nc">String</span> <span class="n">address</span> <span class="o">=</span> <span class="s">"http://localhost:8081/ws/soap/hello"</span><span class="o">;</span>
+        <span class="nc">HelloService</span> <span class="n">helloService</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">HelloServiceImpl</span><span class="o">();</span>
+        <span class="nc">Endpoint</span><span class="o">.</span><span class="na">publish</span><span class="o">(</span><span class="n">address</span><span class="o">,</span> <span class="n">helloService</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"ws is published ["</span> <span class="o">+</span> <span class="n">address</span> <span class="o">+</span> <span class="s">"?wsdl]"</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>访问<code class="highlighter-rouge">http://localhost:8081/ws/soap/hello?wsdl</code>即可查看详情</p>
+
+<h2 id="2调用"><code class="highlighter-rouge">2</code>.调用</h2>
+
+<h3 id="静态客户端">静态客户端</h3>
+
+<p><code class="highlighter-rouge">wsimport http://localhost:8080/ws/soap/hello?wsdl</code>//通过 WSDL 地址生成 class 文件</p>
+
+<p><code class="highlighter-rouge">jar -cf client.jar .</code> //通过 jar 命令将若干 class 文件压缩为一个 jar 包</p>
+
+<p><code class="highlighter-rouge">rmdir /s/q demo </code>//删除生成的 class 文件（删除根目录即可）</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">){</span>
+     <span class="n">HelloService_Service</span> <span class="n">hss</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HelloService_Service</span><span class="o">();</span>
+     <span class="nc">HelloService</span> <span class="n">hs</span> <span class="o">=</span> <span class="n">hss</span><span class="o">.</span><span class="na">getHelloServicePort</span><span class="o">();</span>
+     <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">hs</span><span class="o">.</span><span class="na">say</span><span class="o">());</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h3 id="动态代理客户端">动态代理客户端</h3>
+
+<p>只需提供<code class="highlighter-rouge">HelloService</code>接口，无需jar</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">){</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="no">URL</span> <span class="n">wsdl</span> <span class="o">=</span> <span class="k">new</span> <span class="no">URL</span><span class="o">(</span><span class="s">"http://localhost:8081/ws/soap/hello?wsdl"</span><span class="o">);</span>
+        <span class="nc">QName</span> <span class="n">serviceName</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">QName</span><span class="o">(</span><span class="s">"http://jdkws.practice.sllx.org/"</span><span class="o">,</span> <span class="s">"HelloService"</span><span class="o">);</span>
+        <span class="nc">QName</span> <span class="n">portName</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">QName</span><span class="o">(</span><span class="s">"http://jdkws.practice.sllx.org/"</span><span class="o">,</span> <span class="s">"HelloServicePort"</span><span class="o">);</span>
+        <span class="nc">Service</span> <span class="n">service</span> <span class="o">=</span> <span class="nc">Service</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">wsdl</span><span class="o">,</span> <span class="n">serviceName</span><span class="o">);</span>
+        <span class="nc">HelloService</span> <span class="n">helloService</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="na">getPort</span><span class="o">(</span><span class="n">portName</span><span class="o">,</span> <span class="nc">HelloService</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+        <span class="nc">String</span> <span class="n">result</span> <span class="o">=</span> <span class="n">helloService</span><span class="o">.</span><span class="na">say</span><span class="o">();</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h1 id="三cxf"><code class="highlighter-rouge">三</code>、CXF</h1>
+
+<p>User为自定义的POJO类</p>
+
+<p>web发布示例集成spring</p>
+
+<h2 id="1soap风格"><code class="highlighter-rouge">1.</code>SOAP风格</h2>
+
+<h3 id="定义接口-1">定义接口</h3>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="n">top</span><span class="o">.</span><span class="na">rainynight</span><span class="o">.</span><span class="na">sitews</span><span class="o">.</span><span class="na">user</span><span class="o">.</span><span class="na">ws</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">top.rainynight.sitews.user.entity.User</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">javax.jws.WebService</span><span class="o">;</span>
+
+<span class="nd">@WebService</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">UserWS</span> <span class="o">{</span>
+
+    <span class="nc">User</span> <span class="nf">lookOver</span><span class="o">(</span><span class="kt">int</span> <span class="n">id</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h3 id="实现接口-1">实现接口</h3>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="n">top</span><span class="o">.</span><span class="na">rainynight</span><span class="o">.</span><span class="na">sitews</span><span class="o">.</span><span class="na">user</span><span class="o">.</span><span class="na">ws</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">top.rainynight.sitews.user.entity.User</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.springframework.stereotype.Component</span><span class="o">;</span>
+
+<span class="nd">@Component</span><span class="o">(</span><span class="s">"userWS"</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">UserWSImpl</span> <span class="kd">implements</span> <span class="nc">UserWS</span> <span class="o">{</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="nc">User</span> <span class="nf">lookOver</span><span class="o">(</span><span class="kt">int</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="nf">User</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h3 id="发布服务-1">发布服务</h3>
+
+<h4 id="jetty发布">①Jetty发布</h4>
+
+<p>配置依赖</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;properties&gt;</span>
+    <span class="nt">&lt;project.build.sourceEncoding&gt;</span>UTF-8<span class="nt">&lt;/project.build.sourceEncoding&gt;</span>
+    <span class="nt">&lt;cxf.version&gt;</span>3.0.0<span class="nt">&lt;/cxf.version&gt;</span>
+<span class="nt">&lt;/properties&gt;</span>
+
+<span class="nt">&lt;dependencies&gt;</span>
+    <span class="nt">&lt;dependency&gt;</span>
+        <span class="nt">&lt;groupId&gt;</span>org.apache.cxf<span class="nt">&lt;/groupId&gt;</span>
+        <span class="nt">&lt;artifactId&gt;</span>cxf-rt-frontend-jaxws<span class="nt">&lt;/artifactId&gt;</span>
+        <span class="nt">&lt;version&gt;</span>${cxf.version}<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;/dependency&gt;</span>
+    <span class="nt">&lt;dependency&gt;</span>
+        <span class="nt">&lt;groupId&gt;</span>org.apache.cxf<span class="nt">&lt;/groupId&gt;</span>
+        <span class="nt">&lt;artifactId&gt;</span>cxf-rt-transports-http-jetty<span class="nt">&lt;/artifactId&gt;</span>
+        <span class="nt">&lt;version&gt;</span>${cxf.version}<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;/dependency&gt;</span>
+<span class="nt">&lt;/dependencies&gt;</span>
+</code></pre></div></div>
+
+<p>发布</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">JaxWsServer</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">JaxWsServerFactoryBean</span> <span class="n">factory</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">JaxWsServerFactoryBean</span><span class="o">();</span>
+        <span class="n">factory</span><span class="o">.</span><span class="na">setAddress</span><span class="o">(</span><span class="s">"http://localhost:8080/ws/user"</span><span class="o">);</span>
+        <span class="n">factory</span><span class="o">.</span><span class="na">setServiceClass</span><span class="o">(</span><span class="nc">UserWS</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+        <span class="n">factory</span><span class="o">.</span><span class="na">setServiceBean</span><span class="o">(</span><span class="k">new</span> <span class="nc">UserWSImpl</span><span class="o">());</span>
+        <span class="n">factory</span><span class="o">.</span><span class="na">create</span><span class="o">();</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"soap ws is published"</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>访问<code class="highlighter-rouge">http://localhost:8080/ws/user?wsdl</code></p>
+
+<h4 id="web发布">②Web发布</h4>
+
+<p>配置依赖</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="nt">&lt;properties&gt;</span>
+        <span class="nt">&lt;project.build.sourceEncoding&gt;</span>UTF-8<span class="nt">&lt;/project.build.sourceEncoding&gt;</span>
+        <span class="nt">&lt;spring.version&gt;</span>4.0.5.RELEASE<span class="nt">&lt;/spring.version&gt;</span>
+        <span class="nt">&lt;cxf.version&gt;</span>3.0.0<span class="nt">&lt;/cxf.version&gt;</span>
+    <span class="nt">&lt;/properties&gt;</span>
+
+    <span class="nt">&lt;dependencies&gt;</span>
+        <span class="nt">&lt;dependency&gt;</span>
+            <span class="nt">&lt;groupId&gt;</span>org.springframework<span class="nt">&lt;/groupId&gt;</span>
+            <span class="nt">&lt;artifactId&gt;</span>spring-web<span class="nt">&lt;/artifactId&gt;</span>
+            <span class="nt">&lt;version&gt;</span>${spring.version}<span class="nt">&lt;/version&gt;</span>
+        <span class="nt">&lt;/dependency&gt;</span>
+        <span class="nt">&lt;dependency&gt;</span>
+            <span class="nt">&lt;groupId&gt;</span>org.apache.cxf<span class="nt">&lt;/groupId&gt;</span>
+            <span class="nt">&lt;artifactId&gt;</span>cxf-rt-frontend-jaxws<span class="nt">&lt;/artifactId&gt;</span>
+            <span class="nt">&lt;version&gt;</span>${cxf.version}<span class="nt">&lt;/version&gt;</span>
+        <span class="nt">&lt;/dependency&gt;</span>
+        <span class="nt">&lt;dependency&gt;</span>
+            <span class="nt">&lt;groupId&gt;</span>org.apache.cxf<span class="nt">&lt;/groupId&gt;</span>
+            <span class="nt">&lt;artifactId&gt;</span>cxf-rt-transports-http<span class="nt">&lt;/artifactId&gt;</span>
+            <span class="nt">&lt;version&gt;</span>${cxf.version}<span class="nt">&lt;/version&gt;</span>
+        <span class="nt">&lt;/dependency&gt;</span>
+    <span class="nt">&lt;/dependencies&gt;</span>
+</code></pre></div></div>
+
+<p>配置web.xml</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="nt">&lt;listener&gt;</span>
+     <span class="nt">&lt;listener-class&gt;</span>org.springframework.web.context.ContextLoaderListener<span class="nt">&lt;/listener-class&gt;</span>
+ <span class="nt">&lt;/listener&gt;</span>
+ <span class="nt">&lt;context-param&gt;</span>
+     <span class="nt">&lt;param-name&gt;</span>contextConfigLocation<span class="nt">&lt;/param-name&gt;</span>
+     <span class="nt">&lt;param-value&gt;</span>
+         classpath:spring.xml
+     <span class="nt">&lt;/param-value&gt;</span>
+ <span class="nt">&lt;/context-param&gt;</span>
+
+ <span class="nt">&lt;servlet&gt;</span>
+     <span class="nt">&lt;servlet-name&gt;</span>cxf<span class="nt">&lt;/servlet-name&gt;</span>
+     <span class="nt">&lt;servlet-class&gt;</span>org.apache.cxf.transport.servlet.CXFServlet<span class="nt">&lt;/servlet-class&gt;</span>
+ <span class="nt">&lt;/servlet&gt;</span>
+ <span class="nt">&lt;servlet-mapping&gt;</span>
+     <span class="nt">&lt;servlet-name&gt;</span>cxf<span class="nt">&lt;/servlet-name&gt;</span>
+     <span class="nt">&lt;url-pattern&gt;</span>/*<span class="nt">&lt;/url-pattern&gt;</span>
+ <span class="nt">&lt;/servlet-mapping&gt;</span>
+</code></pre></div></div>
+
+<p>发布</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;beans</span> <span class="na">xmlns=</span><span class="s">"http://www.springframework.org/schema/beans"</span>
+       <span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span>
+       <span class="na">xmlns:context=</span><span class="s">"http://www.springframework.org/schema/context"</span>
+       <span class="na">xmlns:jaxws=</span><span class="s">"http://cxf.apache.org/jaxws"</span>
+       <span class="na">xsi:schemaLocation=</span><span class="s">"http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://cxf.apache.org/jaxws
+       http://cxf.apache.org/schemas/jaxws.xsd"</span><span class="nt">&gt;</span>
+
+    <span class="nt">&lt;context:component-scan</span> <span class="na">base-package=</span><span class="s">"top.rainynight.sitews.user.ws"</span> <span class="nt">/&gt;</span>
+
+    <span class="c">&lt;!-- 下面的方法更简单
+    &lt;jaxws:server address="/ws/user"&gt;
+        &lt;jaxws:serviceBean&gt;
+            &lt;ref bean="userWS"/&gt;
+        &lt;/jaxws:serviceBean&gt;
+    &lt;/jaxws:server&gt;
+    --&gt;</span>
+
+    <span class="nt">&lt;jaxws:endpoint</span> <span class="na">implementor=</span><span class="s">"# userWS"</span> <span class="na">address=</span><span class="s">"/ws/user"</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/beans&gt;</span>
+</code></pre></div></div>
+
+<p>访问<code class="highlighter-rouge">http://localhost:8080/ws/user?wsdl</code></p>
+
+<h3 id="调用服务">调用服务</h3>
+
+<h4 id="静态客户端-1">①静态客户端</h4>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">JaxWsClient</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">JaxWsProxyFactoryBean</span> <span class="n">factory</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">JaxWsProxyFactoryBean</span><span class="o">();</span>
+        <span class="n">factory</span><span class="o">.</span><span class="na">setAddress</span><span class="o">(</span><span class="s">"http://localhost:8080/ws/user"</span><span class="o">);</span>
+        <span class="n">factory</span><span class="o">.</span><span class="na">setServiceClass</span><span class="o">(</span><span class="nc">UserWS</span> <span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+        <span class="nc">UserWS</span> <span class="n">userWS</span> <span class="o">=</span> <span class="n">factory</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="nc">UserWS</span> <span class="o">.</span><span class="na">class</span><span class="o">);</span>
+        <span class="nc">User</span> <span class="n">result</span> <span class="o">=</span> <span class="n">userWS</span> <span class="o">.</span><span class="na">lookOver</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h4 id="动态代理客户端-1">②动态代理客户端</h4>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">JaxWsDynamicClient</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">JaxWsDynamicClientFactory</span> <span class="n">factory</span> <span class="o">=</span> <span class="nc">JaxWsDynamicClientFactory</span><span class="o">.</span><span class="na">newInstance</span><span class="o">();</span>
+        <span class="nc">Client</span> <span class="n">client</span> <span class="o">=</span> <span class="n">factory</span><span class="o">.</span><span class="na">createClient</span><span class="o">(</span><span class="s">"http://localhost:8080/ws/user?wsdl"</span><span class="o">);</span>
+
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="nc">Object</span><span class="o">[]</span> <span class="n">results</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">invoke</span><span class="o">(</span><span class="s">"lookOver"</span><span class="o">,</span> <span class="mi">1</span><span class="o">);</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">results</span><span class="o">[</span><span class="mi">0</span><span class="o">]);</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h4 id="通用动态代理客户端">③通用动态代理客户端</h4>
+
+<p>既可调用 JAX-WS 服务，也可调用 Simple 服务</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DynamicClient</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">DynamicClientFactory</span> <span class="n">factory</span> <span class="o">=</span> <span class="nc">DynamicClientFactory</span><span class="o">.</span><span class="na">newInstance</span><span class="o">();</span>
+        <span class="nc">Client</span> <span class="n">client</span> <span class="o">=</span> <span class="n">factory</span><span class="o">.</span><span class="na">createClient</span><span class="o">(</span><span class="s">"http://localhost:8080/ws/user?wsdl"</span><span class="o">);</span>
+
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="nc">Object</span><span class="o">[]</span> <span class="n">results</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">invoke</span><span class="o">(</span><span class="s">"lookOver"</span><span class="o">,</span> <span class="mi">1</span><span class="o">);</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">results</span><span class="o">[</span><span class="mi">0</span><span class="o">]);</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h4 id="spring客户端">④Spring客户端</h4>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;beans</span> <span class="na">xmlns=</span><span class="s">"http://www.springframework.org/schema/beans"</span>
+       <span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span>
+       <span class="na">xmlns:jaxws=</span><span class="s">"http://cxf.apache.org/jaxws"</span>
+       <span class="na">xsi:schemaLocation=</span><span class="s">"http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+       http://cxf.apache.org/jaxws
+       http://cxf.apache.org/schemas/jaxws.xsd"</span><span class="nt">&gt;</span>
+
+    <span class="nt">&lt;jaxws:client</span> <span class="na">id=</span><span class="s">"userWSClient"</span>
+                  <span class="na">serviceClass=</span><span class="s">"top.rainynight.sitews.user.ws.UserWS"</span>
+                  <span class="na">address=</span><span class="s">"http://localhost:8080/ws/user"</span><span class="nt">/&gt;</span>
+
+<span class="nt">&lt;/beans&gt;</span>
+</code></pre></div></div>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">UserWSClient</span><span class="o">{</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">ApplicationContext</span> <span class="n">context</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ClassPathXmlApplicationContext</span><span class="o">(</span><span class="s">"spring-client.xml"</span><span class="o">);</span>
+
+        <span class="nc">UserWS</span> <span class="n">userWS</span><span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="s">"userWSClient"</span><span class="o">,</span> <span class="nc">UserWS</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+        <span class="nc">User</span> <span class="n">result</span> <span class="o">=</span> <span class="n">userWS</span><span class="o">.</span><span class="na">lookOver</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="2rest风格"><code class="highlighter-rouge">2</code>.REST风格</h2>
+
+<h3 id="定义接口-2">定义接口</h3>
+
+<p><code class="highlighter-rouge">!</code>REST 规范允许资源类没有接口</p>
+
+<blockquote>
+  <p>请求方式注解，包括：<code class="highlighter-rouge">@GET、@POST、@PUT、@DELETE</code></p>
+
+  <p>请求路径注解，包括：<code class="highlighter-rouge">@Path</code> ，其中包括一个路径参数</p>
+
+  <p>数据格式注解，包括：<code class="highlighter-rouge">@Consumes</code>（输入）、<code class="highlighter-rouge">@Produces</code>（输出），可使用 <code class="highlighter-rouge">MediaType</code> 常量</p>
+
+  <p>相关参数注解，包括：<code class="highlighter-rouge">@PathParam</code>（路径参数）、<code class="highlighter-rouge">@FormParam</code>（表单参数），此外还有 <code class="highlighter-rouge">@QueryParam</code>（请求参数）</p>
+</blockquote>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="n">top</span><span class="o">.</span><span class="na">rainynight</span><span class="o">.</span><span class="na">sitews</span><span class="o">.</span><span class="na">user</span><span class="o">.</span><span class="na">ws</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">top.rainynight.sitews.user.entity.User</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">javax.jws.WebService</span><span class="o">;</span>
+
+<span class="nd">@WebService</span>
+<span class="nd">@Path</span><span class="o">(</span><span class="s">"/"</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">UserWS</span> <span class="o">{</span>
+
+    <span class="nd">@GET</span>
+    <span class="nd">@Path</span><span class="o">(</span><span class="s">"{id:[1-9]{1,9}}"</span><span class="o">)</span>
+    <span class="nd">@Produces</span><span class="o">(</span><span class="nc">MediaType</span><span class="o">.</span><span class="na">APPLICATION_JSON</span><span class="o">)</span>
+    <span class="nc">User</span> <span class="nf">lookOver</span><span class="o">(</span><span class="nd">@PathParam</span><span class="o">(</span><span class="s">"id"</span><span class="o">)</span> <span class="kt">int</span> <span class="n">id</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h3 id="实现接口-2">实现接口</h3>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="n">top</span><span class="o">.</span><span class="na">rainynight</span><span class="o">.</span><span class="na">sitews</span><span class="o">.</span><span class="na">user</span><span class="o">.</span><span class="na">ws</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">top.rainynight.sitews.user.entity.User</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.springframework.stereotype.Component</span><span class="o">;</span>
+
+<span class="nd">@Component</span><span class="o">(</span><span class="s">"userWS"</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">UserWSImpl</span> <span class="kd">implements</span> <span class="nc">UserWS</span> <span class="o">{</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="nc">User</span> <span class="nf">lookOver</span><span class="o">(</span><span class="kt">int</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="nf">User</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h3 id="发布服务-2">发布服务</h3>
+
+<h4 id="jetty发布-1">①jetty发布</h4>
+
+<p>配置依赖</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;properties&gt;</span>
+    <span class="nt">&lt;project.build.sourceEncoding&gt;</span>UTF-8<span class="nt">&lt;/project.build.sourceEncoding&gt;</span>
+    <span class="nt">&lt;cxf.version&gt;</span>3.0.0<span class="nt">&lt;/cxf.version&gt;</span>
+    <span class="nt">&lt;jackson.version&gt;</span>2.4.1<span class="nt">&lt;/jackson.version&gt;</span>
+<span class="nt">&lt;/properties&gt;</span>
+
+<span class="nt">&lt;dependencies&gt;</span>
+    <span class="nt">&lt;dependency&gt;</span>
+        <span class="nt">&lt;groupId&gt;</span>org.apache.cxf<span class="nt">&lt;/groupId&gt;</span>
+        <span class="nt">&lt;artifactId&gt;</span>cxf-rt-frontend-jaxrs<span class="nt">&lt;/artifactId&gt;</span>
+        <span class="nt">&lt;version&gt;</span>${cxf.version}<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;/dependency&gt;</span>
+    <span class="nt">&lt;dependency&gt;</span>
+        <span class="nt">&lt;groupId&gt;</span>org.apache.cxf<span class="nt">&lt;/groupId&gt;</span>
+        <span class="nt">&lt;artifactId&gt;</span>cxf-rt-transports-http-jetty<span class="nt">&lt;/artifactId&gt;</span>
+        <span class="nt">&lt;version&gt;</span>${cxf.version}<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;/dependency&gt;</span>
+    <span class="nt">&lt;dependency&gt;</span>
+        <span class="nt">&lt;groupId&gt;</span>com.fasterxml.jackson.jaxrs<span class="nt">&lt;/groupId&gt;</span>
+        <span class="nt">&lt;artifactId&gt;</span>jackson-jaxrs-json-provider<span class="nt">&lt;/artifactId&gt;</span>
+        <span class="nt">&lt;version&gt;</span>${jackson.version}<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;/dependency&gt;</span>
+<span class="nt">&lt;/dependencies&gt;</span>
+</code></pre></div></div>
+
+<p>发布</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Server</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// 添加 ResourceClass</span>
+        <span class="nc">List</span><span class="o">&lt;</span><span class="nc">Class</span><span class="o">&lt;?&gt;&gt;</span> <span class="n">resourceClassList</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;</span><span class="nc">Class</span><span class="o">&lt;?&gt;&gt;();</span>
+        <span class="n">resourceClassList</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="nc">UserWSImpl</span> <span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+        <span class="c1">// 添加 ResourceProvider</span>
+        <span class="nc">List</span><span class="o">&lt;</span><span class="nc">ResourceProvider</span><span class="o">&gt;</span> <span class="n">resourceProviderList</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;</span><span class="nc">ResourceProvider</span><span class="o">&gt;();</span>
+        <span class="n">resourceProviderList</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="k">new</span> <span class="nc">SingletonResourceProvider</span><span class="o">(</span><span class="k">new</span> <span class="nc">ProductServiceImpl</span><span class="o">()));</span>
+
+        <span class="c1">// 添加 Provider</span>
+        <span class="nc">List</span><span class="o">&lt;</span><span class="nc">Object</span><span class="o">&gt;</span> <span class="n">providerList</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;</span><span class="nc">Object</span><span class="o">&gt;();</span>
+        <span class="n">providerList</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="k">new</span> <span class="nc">JacksonJsonProvider</span><span class="o">());</span>
+
+        <span class="c1">// 发布 REST 服务</span>
+        <span class="nc">JAXRSServerFactoryBean</span> <span class="n">factory</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">JAXRSServerFactoryBean</span><span class="o">();</span>
+        <span class="n">factory</span><span class="o">.</span><span class="na">setAddress</span><span class="o">(</span><span class="s">"http://localhost:8080/rs/user"</span><span class="o">);</span>
+        <span class="n">factory</span><span class="o">.</span><span class="na">setResourceClasses</span><span class="o">(</span><span class="n">resourceClassList</span><span class="o">);</span>
+        <span class="n">factory</span><span class="o">.</span><span class="na">setResourceProviders</span><span class="o">(</span><span class="n">resourceProviderList</span><span class="o">);</span>
+        <span class="n">factory</span><span class="o">.</span><span class="na">setProviders</span><span class="o">(</span><span class="n">providerList</span><span class="o">);</span>
+        <span class="n">factory</span><span class="o">.</span><span class="na">create</span><span class="o">();</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"rest ws is published"</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>访问<code class="highlighter-rouge">http://localhost:8080/rs/user?_wadl</code></p>
+
+<h4 id="web发布-1">②web发布</h4>
+
+<p>配置依赖</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="nt">&lt;properties&gt;</span>
+        <span class="nt">&lt;project.build.sourceEncoding&gt;</span>UTF-8<span class="nt">&lt;/project.build.sourceEncoding&gt;</span>
+        <span class="nt">&lt;spring.version&gt;</span>4.0.6.RELEASE<span class="nt">&lt;/spring.version&gt;</span>
+        <span class="nt">&lt;cxf.version&gt;</span>3.0.0<span class="nt">&lt;/cxf.version&gt;</span>
+        <span class="nt">&lt;jackson.version&gt;</span>2.4.1<span class="nt">&lt;/jackson.version&gt;</span>
+    <span class="nt">&lt;/properties&gt;</span>
+
+    <span class="nt">&lt;dependencies&gt;</span>
+        <span class="nt">&lt;dependency&gt;</span>
+            <span class="nt">&lt;groupId&gt;</span>org.springframework<span class="nt">&lt;/groupId&gt;</span>
+            <span class="nt">&lt;artifactId&gt;</span>spring-web<span class="nt">&lt;/artifactId&gt;</span>
+            <span class="nt">&lt;version&gt;</span>${spring.version}<span class="nt">&lt;/version&gt;</span>
+        <span class="nt">&lt;/dependency&gt;</span>
+        <span class="nt">&lt;dependency&gt;</span>
+            <span class="nt">&lt;groupId&gt;</span>org.apache.cxf<span class="nt">&lt;/groupId&gt;</span>
+            <span class="nt">&lt;artifactId&gt;</span>cxf-rt-frontend-jaxrs<span class="nt">&lt;/artifactId&gt;</span>
+            <span class="nt">&lt;version&gt;</span>${cxf.version}<span class="nt">&lt;/version&gt;</span>
+        <span class="nt">&lt;/dependency&gt;</span>
+        <span class="nt">&lt;dependency&gt;</span>
+            <span class="nt">&lt;groupId&gt;</span>com.fasterxml.jackson.jaxrs<span class="nt">&lt;/groupId&gt;</span>
+            <span class="nt">&lt;artifactId&gt;</span>jackson-jaxrs-json-provider<span class="nt">&lt;/artifactId&gt;</span>
+            <span class="nt">&lt;version&gt;</span>${jackson.version}<span class="nt">&lt;/version&gt;</span>
+        <span class="nt">&lt;/dependency&gt;</span>
+    <span class="nt">&lt;/dependencies&gt;</span>
+</code></pre></div></div>
+
+<p>配置web.xml</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="nt">&lt;listener&gt;</span>
+     <span class="nt">&lt;listener-class&gt;</span>org.springframework.web.context.ContextLoaderListener<span class="nt">&lt;/listener-class&gt;</span>
+ <span class="nt">&lt;/listener&gt;</span>
+ <span class="nt">&lt;context-param&gt;</span>
+     <span class="nt">&lt;param-name&gt;</span>contextConfigLocation<span class="nt">&lt;/param-name&gt;</span>
+     <span class="nt">&lt;param-value&gt;</span>
+         classpath:spring.xml
+     <span class="nt">&lt;/param-value&gt;</span>
+ <span class="nt">&lt;/context-param&gt;</span>
+
+ <span class="nt">&lt;servlet&gt;</span>
+     <span class="nt">&lt;servlet-name&gt;</span>cxf<span class="nt">&lt;/servlet-name&gt;</span>
+     <span class="nt">&lt;servlet-class&gt;</span>org.apache.cxf.transport.servlet.CXFServlet<span class="nt">&lt;/servlet-class&gt;</span>
+ <span class="nt">&lt;/servlet&gt;</span>
+ <span class="nt">&lt;servlet-mapping&gt;</span>
+     <span class="nt">&lt;servlet-name&gt;</span>cxf<span class="nt">&lt;/servlet-name&gt;</span>
+     <span class="nt">&lt;url-pattern&gt;</span>/*<span class="nt">&lt;/url-pattern&gt;</span>
+ <span class="nt">&lt;/servlet-mapping&gt;</span>
+</code></pre></div></div>
+
+<p>发布</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+
+<span class="nt">&lt;beans</span> <span class="na">xmlns=</span><span class="s">"http://www.springframework.org/schema/beans"</span>
+       <span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span>
+       <span class="na">xmlns:context=</span><span class="s">"http://www.springframework.org/schema/context"</span>
+       <span class="na">xmlns:jaxrs=</span><span class="s">"http://cxf.apache.org/jaxrs"</span>
+       <span class="na">xsi:schemaLocation=</span><span class="s">"http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://cxf.apache.org/jaxrs
+       http://cxf.apache.org/schemas/jaxrs.xsd"</span><span class="nt">&gt;</span>
+
+    <span class="nt">&lt;context:component-scan</span> <span class="na">base-package=</span><span class="s">"top.rainynight.sitews.user.ws"</span> <span class="nt">/&gt;</span>
+
+    <span class="nt">&lt;jaxrs:server</span> <span class="na">address=</span><span class="s">"/rs/user"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;jaxrs:serviceBeans&gt;</span>
+            <span class="nt">&lt;ref</span> <span class="na">bean=</span><span class="s">"userWS"</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;/jaxrs:serviceBeans&gt;</span>
+        <span class="nt">&lt;jaxrs:providers&gt;</span>
+            <span class="nt">&lt;bean</span> <span class="na">class=</span><span class="s">"com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider"</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;/jaxrs:providers&gt;</span>
+    <span class="nt">&lt;/jaxrs:server&gt;</span>
+<span class="nt">&lt;/beans&gt;</span>
+</code></pre></div></div>
+
+<p>访问<code class="highlighter-rouge">http://localhost:8080/rs/user?_wadl</code></p>
+
+<h3 id="调用服务-1">调用服务</h3>
+
+<h4 id="jax-rs-10-客户端">①JAX-RS 1.0 客户端</h4>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">JAXRSClient</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">String</span> <span class="n">baseAddress</span> <span class="o">=</span> <span class="s">"http://localhost:8080/rs/user"</span><span class="o">;</span>
+
+        <span class="nc">List</span><span class="o">&lt;</span><span class="nc">Object</span><span class="o">&gt;</span> <span class="n">providerList</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;</span><span class="nc">Object</span><span class="o">&gt;();</span>
+        <span class="n">providerList</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="k">new</span> <span class="nc">JacksonJsonProvider</span><span class="o">());</span>
+
+        <span class="nc">UserWS</span> <span class="n">userWS</span> <span class="o">=</span> <span class="nc">JAXRSClientFactory</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">baseAddress</span><span class="o">,</span> <span class="nc">UserWS</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">providerList</span><span class="o">);</span>
+
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h4 id="jax-rs-20-客户端">②JAX-RS 2.0 客户端</h4>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">JAXRS20Client</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">String</span> <span class="n">baseAddress</span> <span class="o">=</span> <span class="s">"http://localhost:8080/rs/user"</span><span class="o">;</span>
+
+        <span class="nc">JacksonJsonProvider</span> <span class="n">jsonProvider</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">JacksonJsonProvider</span><span class="o">();</span>
+
+        <span class="nc">List</span><span class="o">&lt;</span><span class="nc">User</span><span class="o">&gt;</span> <span class="n">userList</span> <span class="o">=</span> <span class="nc">ClientBuilder</span><span class="o">.</span><span class="na">newClient</span><span class="o">()</span>
+            <span class="o">.</span><span class="na">register</span><span class="o">(</span><span class="n">jsonProvider</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">target</span><span class="o">(</span><span class="n">baseAddress</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">"/1"</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">request</span><span class="o">(</span><span class="nc">MediaType</span><span class="o">.</span><span class="na">APPLICATION_JSON</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="k">new</span> <span class="nc">GenericType</span><span class="o">&lt;</span><span class="nc">List</span><span class="o">&lt;</span><span class="nc">User</span><span class="o">&gt;&gt;()</span> <span class="o">{});</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h4 id="webclient-客户端">③WebClient 客户端</h4>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CXFWebClient</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">String</span> <span class="n">baseAddress</span> <span class="o">=</span> <span class="s">"http://localhost:8080/rs/user"</span><span class="o">;</span>
+
+        <span class="nc">List</span><span class="o">&lt;</span><span class="nc">Object</span><span class="o">&gt;</span> <span class="n">providerList</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;</span><span class="nc">Object</span><span class="o">&gt;();</span>
+        <span class="n">providerList</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="k">new</span> <span class="nc">JacksonJsonProvider</span><span class="o">());</span>
+
+        <span class="nc">List</span><span class="o">&lt;</span><span class="nc">User</span><span class="o">&gt;</span> <span class="n">userList</span> <span class="o">=</span> <span class="nc">WebClient</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">baseAddress</span><span class="o">,</span> <span class="n">providerList</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">"/1"</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">accept</span><span class="o">(</span><span class="nc">MediaType</span><span class="o">.</span><span class="na">APPLICATION_JSON</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="k">new</span> <span class="nc">GenericType</span><span class="o">&lt;</span><span class="nc">List</span><span class="o">&lt;</span><span class="nc">User</span><span class="o">&gt;&gt;()</span> <span class="o">{});</span>
+
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h4 id="ajax客户端">④AJAX客户端</h4>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">({</span>
+  <span class="na">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">get</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">url</span><span class="p">:</span> <span class="dl">'</span><span class="s1">http://localhost:8080/rs/user/1</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">dataType</span><span class="p">:</span> <span class="dl">'</span><span class="s1">json</span><span class="dl">'</span><span class="p">,</span>
+  <span class="na">success</span><span class="p">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+<span class="c1">//...</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div></div>
+
+<p>跨域方案1：jsonp</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.apache.cxf<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>cxf-rt-rs-extension-providers<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>${cxf.version}<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre></div></div>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;jaxrs:server</span> <span class="na">address=</span><span class="s">"/rs/user"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;jaxrs:serviceBeans&gt;</span>
+        <span class="nt">&lt;ref</span> <span class="na">bean=</span><span class="s">"userWS"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/jaxrs:serviceBeans&gt;</span>
+    <span class="nt">&lt;jaxrs:providers&gt;</span>
+        <span class="nt">&lt;bean</span> <span class="na">class=</span><span class="s">"com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider"</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;bean</span> <span class="na">class=</span><span class="s">"org.apache.cxf.jaxrs.provider.jsonp.JsonpPreStreamInterceptor"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/jaxrs:providers&gt;</span>
+    <span class="nt">&lt;jaxrs:inInterceptors&gt;</span>
+        <span class="nt">&lt;bean</span> <span class="na">class=</span><span class="s">"org.apache.cxf.jaxrs.provider.jsonp.JsonpInInterceptor"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/jaxrs:inInterceptors&gt;</span>
+    <span class="nt">&lt;jaxrs:outInterceptors&gt;</span>
+        <span class="nt">&lt;bean</span> <span class="na">class=</span><span class="s">"org.apache.cxf.jaxrs.provider.jsonp.JsonpPostStreamInterceptor"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/jaxrs:outInterceptors&gt;</span>
+<span class="nt">&lt;/jaxrs:server&gt;</span>
+</code></pre></div></div>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">({</span>
+    <span class="na">type</span><span class="p">:</span> <span class="dl">'</span><span class="s1">get</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">url</span><span class="p">:</span> <span class="dl">'</span><span class="s1">http://localhost:8080/rs/user/1</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">dataType</span><span class="p">:</span> <span class="dl">'</span><span class="s1">jsonp</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">jsonp</span><span class="p">:</span> <span class="dl">'</span><span class="s1">_jsonp</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">jsonpCallback</span><span class="p">:</span> <span class="dl">'</span><span class="s1">callback</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">success</span><span class="p">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">//...</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div></div>
+
+<p>跨域方案2：cors</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.apache.cxf<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>cxf-rt-rs-security-cors<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>${cxf.version}<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre></div></div>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;jaxrs:server</span> <span class="na">address=</span><span class="s">"/rs/user"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;jaxrs:serviceBeans&gt;</span>
+        <span class="nt">&lt;ref</span> <span class="na">bean=</span><span class="s">"userWS"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/jaxrs:serviceBeans&gt;</span>
+    <span class="nt">&lt;jaxrs:providers&gt;</span>
+        <span class="nt">&lt;bean</span> <span class="na">class=</span><span class="s">"com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider"</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;bean</span> <span class="na">class=</span><span class="s">"org.apache.cxf.rs.security.cors.CrossOriginResourceSharingFilter"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"allowOrigins"</span> <span class="na">value=</span><span class="s">"http://localhost"</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;/bean&gt;</span>
+    <span class="nt">&lt;/jaxrs:providers&gt;</span>
+<span class="nt">&lt;/jaxrs:server&gt;</span>
+</code></pre></div></div>
+
+<p>allowOrigins 设置客户端域名</p>
+
+<p>IE8 中使用 jQuery 发送 AJAX 请求时，需要配置 <code class="highlighter-rouge">$.support.cors = true</code></p>
+
+<h2 id="警告"><code class="highlighter-rouge">～～</code>警告<code class="highlighter-rouge">～～</code></h2>
+<p><code class="highlighter-rouge">!warning</code> 极重要，cxf在wsdl中发布的<code class="highlighter-rouge">targetNamespace</code>是实现类路径，而被调用时却只接受接口路径。所以，请将接口与实现类放在同一路径下，或者在实现类中指定<code class="highlighter-rouge">targetNamespace</code>为接口的路径；否则客户端将抛出 ..common.i18n.UncheckedException: No operation was found with the name … 异常</p>
+:ET

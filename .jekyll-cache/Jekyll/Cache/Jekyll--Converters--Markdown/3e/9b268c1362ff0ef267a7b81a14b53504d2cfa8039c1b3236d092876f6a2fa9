@@ -1,0 +1,3 @@
+I")<p><a href="http://beanvalidation.org/">BeanValidation</a> 可以帮助开发者方便地对数据进行校验，但它只是一个标准，只有一套接口，要想使用它的功能必须选择一种实现，<code class="highlighter-rouge">hibernate-validator</code>是个不错的选择</p>
+
+:ET

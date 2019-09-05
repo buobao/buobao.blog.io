@@ -1,0 +1,41 @@
+I"6<p>在java中如何解析json？fastjson？jackson？那未免太无趣了</p>
+
+<p>其实我们可以试试ScriptEngine</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">NashornTest</span> <span class="o">{</span>
+
+    <span class="kd">private</span> <span class="kd">static</span> <span class="nc">String</span> <span class="n">json</span> <span class="o">=</span> <span class="s">"[{name:'A',age:'18'},{name:'B',age:'19'},{name:'C',age:'30'}]"</span><span class="o">;</span>
+
+    <span class="kd">private</span> <span class="kd">static</span> <span class="nc">String</span> <span class="n">script</span> <span class="o">=</span>
+            <span class="s">"function parse(json){"</span> <span class="o">+</span>
+            <span class="s">"   var names = new Array();"</span> <span class="o">+</span>
+            <span class="s">"   for(var i in json){"</span> <span class="o">+</span>
+            <span class="s">"       names.push(json[i].name);"</span> <span class="o">+</span>
+            <span class="s">"   }"</span> <span class="o">+</span>
+            <span class="s">"   return names;"</span> <span class="o">+</span>
+            <span class="s">"};"</span> <span class="o">+</span>
+            <span class="s">"parse("</span> <span class="o">+</span> <span class="n">json</span> <span class="o">+</span> <span class="s">");"</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">ScriptException</span> <span class="o">{</span>
+        <span class="nc">ScriptEngineManager</span> <span class="n">manager</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ScriptEngineManager</span><span class="o">();</span>
+        <span class="nc">ScriptEngine</span> <span class="n">engine</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="na">getEngineByName</span><span class="o">(</span> <span class="s">"JavaScript"</span> <span class="o">);</span>
+
+        <span class="nc">Map</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="o">(</span><span class="nc">Map</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span><span class="nc">String</span><span class="o">&gt;)</span><span class="n">engine</span><span class="o">.</span><span class="na">eval</span><span class="o">(</span><span class="n">script</span><span class="o">);</span>
+        <span class="n">result</span><span class="o">.</span><span class="na">forEach</span><span class="o">((</span><span class="n">k</span><span class="o">,</span><span class="n">v</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">v</span><span class="o">));</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>输出:</p>
+
+<p>A</p>
+
+<p>B</p>
+
+<p>C</p>
+
+<blockquote>
+  <p>代码中使用了 <a href="http://blog.rainynight.top/2014-12-13/java-newfeature/# lambda">lambda</a></p>
+</blockquote>
+
+:ET

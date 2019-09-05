@@ -1,0 +1,69 @@
+I"�<p>Java RMI 指的是远程方法调用 (Remote Method Invocation)。RMI能够让在某个 Java 虚拟机上的对象调用另一个 Java 虚拟机中的对象上的方法, 其威力体现在它强大的开发分布式网络应用的能力上，它可以被看作是RPC的Java版本。</p>
+
+<p>与WebService相比，RMI编写代码更加简单，在小型应用开发上更加合适，相对地，RMI只能在java中使用，而WebSerce可以跨平台。</p>
+
+<p>RMI示意图：</p>
+
+<p><img src="https://bit-ranger.github.io/blog/static/img/rmi.jpg" alt="rmi" /></p>
+
+<h1 id="demo">Demo</h1>
+
+<p>定义接口，必须继承Remote</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">java.rmi.Remote</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.rmi.RemoteException</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">HelloService</span> <span class="kd">extends</span> <span class="nc">Remote</span><span class="o">{</span>
+    <span class="nc">String</span> <span class="nf">sayHello</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">RemoteException</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>实现接口，必须继承UnicastRemoteObject并在空构造中抛出RemoteException, 方法的返回值必须为原语类型或者序列化类型.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">java.rmi.RemoteException</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.rmi.server.UnicastRemoteObject</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">HelloServiceImpl</span> <span class="kd">extends</span> <span class="nc">UnicastRemoteObject</span> <span class="kd">implements</span> <span class="nc">HelloService</span> <span class="o">{</span>
+
+    <span class="kd">protected</span> <span class="nf">HelloServiceImpl</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">RemoteException</span> <span class="o">{}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="nc">String</span> <span class="nf">sayHello</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">RemoteException</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="s">"server says. 'Hey'"</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>注册服务</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">java.net.MalformedURLException</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.rmi.RemoteException</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.rmi.registry.LocateRegistry</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.rmi.registry.Registry</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">RegistryBook</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">RemoteException</span><span class="o">,</span> <span class="nc">MalformedURLException</span> <span class="o">{</span>
+        <span class="nc">Registry</span> <span class="n">r</span> <span class="o">=</span> <span class="nc">LocateRegistry</span><span class="o">.</span><span class="na">createRegistry</span><span class="o">(</span><span class="nc">Registry</span><span class="o">.</span><span class="na">REGISTRY_PORT</span><span class="o">);</span>
+        <span class="n">r</span><span class="o">.</span><span class="na">rebind</span><span class="o">(</span><span class="s">"HelloService"</span><span class="o">,</span> <span class="k">new</span> <span class="nc">HelloServiceImpl</span><span class="o">());</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>在另一台虚拟机上运行客户端代码，需要获得服务接口文件</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">java.net.MalformedURLException</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.rmi.Naming</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.rmi.NotBoundException</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.rmi.RemoteException</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Client</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span> <span class="n">args</span><span class="o">[])</span> <span class="kd">throws</span> <span class="nc">RemoteException</span><span class="o">,</span> <span class="nc">MalformedURLException</span><span class="o">,</span> <span class="nc">NotBoundException</span> <span class="o">{</span>
+            <span class="nc">HelloService</span> <span class="n">helloService</span> <span class="o">=</span> <span class="o">(</span><span class="nc">HelloService</span><span class="o">)</span> <span class="nc">Naming</span><span class="o">.</span><span class="na">lookup</span><span class="o">(</span><span class="s">"rmi://localhost:1099/HelloService"</span><span class="o">);</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">helloService</span><span class="o">.</span><span class="na">sayHello</span><span class="o">());</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>注意，如果你使用的较为古老的jdk，你可能需要通过jdk内置的<code class="highlighter-rouge">rmic</code>命令生成<code class="highlighter-rouge">stub</code>以及<code class="highlighter-rouge">skeleton</code>文件，并将<code class="highlighter-rouge">stub</code>文件提供给客户端使用。</p>
+
+:ET

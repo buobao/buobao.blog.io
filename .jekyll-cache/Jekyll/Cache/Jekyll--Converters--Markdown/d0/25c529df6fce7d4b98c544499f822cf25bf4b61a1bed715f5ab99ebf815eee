@@ -1,0 +1,121 @@
+I"�<p><a href="http://beanvalidation.org/">BeanValidation</a> 可以帮助开发者方便地对数据进行校验，但它只是一个标准，只有一套接口，要想使用它的功能必须选择一种实现，<code class="highlighter-rouge">hibernate-validator</code>是个不错的选择</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.hibernate<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>hibernate-validator<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>5.0.2.Final<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre></div></div>
+
+<p>BeanValidator 可以自动扫描到hibernate-validator，而不用进行任何配置，前提是需要将hibernate-validator放到classpath下</p>
+
+<p>在JAVA类中可以直接得到可用的检验器实现：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+</code></pre></div></div>
+
+<p>它是怎么做到的？笔者和你具有一样强的好奇心，深入源码后，笔者发现了这样一段代码</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>private List&lt;ValidationProvider&lt;?&gt;&gt; loadProviders(ClassLoader classloader) {
+	ServiceLoader&lt;ValidationProvider&gt; loader = ServiceLoader.load( ValidationProvider.class, classloader );
+	Iterator&lt;ValidationProvider&gt; providerIterator = loader.iterator();
+	List&lt;ValidationProvider&lt;?&gt;&gt; validationProviderList = new ArrayList&lt;ValidationProvider&lt;?&gt;&gt;();
+	while ( providerIterator.hasNext() ) {
+		try {
+			validationProviderList.add( providerIterator.next() );
+		}
+		catch ( ServiceConfigurationError e ) {
+			// ignore, because it can happen when multiple
+			// providers are present and some of them are not class loader
+			// compatible with our API.
+		}
+	}
+	return validationProviderList;
+}
+</code></pre></div></div>
+
+<p>显而易见，通过<code class="highlighter-rouge">ClassLoader</code>可以找出所有实现了<code class="highlighter-rouge">ValidationProvider</code>的接口的类，这些类即为BeanValidator的实现，然后从这个列表中取第一个就行了。</p>
+
+<p>BeanValidation 使用方法也非常简单，调用<code class="highlighter-rouge">validate</code>方法后会返回一个校验结果集，如果结果集长度为0则表示校验完全通过；否则将可以从<code class="highlighter-rouge">ConstraintViolation</code>中获取失败信息</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Set&lt;ConstraintViolation&lt;Article&gt;&gt; constraintViolations = validator.validate(new Article());
+</code></pre></div></div>
+
+<p>当然，前提是先要定义字段的约束，<code class="highlighter-rouge">@NotNull</code>表示此字段的值不可为空，注解也可以在字段上，更多预置的注解在<code class="highlighter-rouge">javax.validation.constraints</code>包中</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@NotNull
+public String getTitle() {
+    return title;
+}
+</code></pre></div></div>
+
+<h1 id="与spring集成">与Spring集成</h1>
+
+<p>现在Spring4已经集成了BeanValidation，并增加了国际化支持，这个LocalValidatorFactoryBean可以注入到任何类中使用</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"&gt;
+    &lt;property name="providerClass" value="org.hibernate.validator.HibernateValidator"/&gt;
+    &lt;!-- 如果不加默认到 使用classpath下的 ValidationMessages.properties --&gt;
+    &lt;property name="validationMessageSource" ref="validationMessageSource"/&gt;
+&lt;/bean&gt;
+
+&lt;!-- 国际化的消息资源文件（本系统中主要用于显示/错误消息定制） --&gt;
+&lt;bean id="validationMessageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource"&gt;
+    &lt;property name="basenames"&gt;
+        &lt;list&gt;
+            &lt;!-- 在web环境中一定要定位到classpath 否则默认到当前web应用下找  --&gt;
+            &lt;value&gt;classpath:messages/validationMessages&lt;/value&gt;
+            &lt;value&gt;classpath:org/hibernate/validator/ValidationMessages&lt;/value&gt;
+        &lt;/list&gt;
+    &lt;/property&gt;
+    &lt;property name="useCodeAsDefaultMessage" value="false"/&gt;
+    &lt;property name="defaultEncoding" value="UTF-8"/&gt;
+    &lt;property name="cacheSeconds" value="60"/&gt;
+&lt;/bean&gt;
+</code></pre></div></div>
+
+<p>如果你正在使用 SpringMVC 集成就更简单了</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;mvc:annotation-driven validator="validator"/&gt;
+</code></pre></div></div>
+
+<p>然后在需要校验的Bean上注解<code class="highlighter-rouge">@Valid</code>，并紧随其后添加<code class="highlighter-rouge">BindingResult</code></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@RequestMapping(value = "release", method = RequestMethod.POST)
+public String release(@Valid Article article, BindingResult bindingResult, HttpSession session, ModelMap modelMap){
+ ...
+ ...
+}
+</code></pre></div></div>
+
+<p>如果想要将校验失败的信息展示在页面上可以使用el表达式, 注意el版本必须在2.2以上, s前缀指的是spring标签</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;%@taglib prefix="s" uri="http://www.springframework.org/tags" %&gt;
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;s:hasBindErrors name="article"&gt;
+    &lt;c:if test="${errors.fieldErrorCount &gt; 0}"&gt;
+        字段错误：&lt;br/&gt;
+        &lt;c:forEach items="${errors.fieldErrors}" var="error"&gt;
+            &lt;s:message var="message" code="${error.code}" arguments="${error.arguments}" text="${error.defaultMessage}"/&gt;
+            ${error.field}------${message}&lt;br/&gt;
+        &lt;/c:forEach&gt;
+    &lt;/c:if&gt;
+
+    &lt;c:if test="${errors.globalErrorCount &gt; 0}"&gt;
+        全局错误：&lt;br/&gt;
+        &lt;c:forEach items="${errors.globalErrors}" var="error"&gt;
+            &lt;s:message var="message" code="${error.code}" arguments="${error.arguments}" text="${error.defaultMessage}"/&gt;
+            &lt;c:if test="${not empty message}"&gt;
+                ${message}&lt;br/&gt;
+            &lt;/c:if&gt;
+        &lt;/c:forEach&gt;
+    &lt;/c:if&gt;
+&lt;/s:hasBindErrors&gt;
+</code></pre></div></div>
+
+<hr />
+
+<p>其实 BeanValidation的内容远不止于此，它还有很多更高级的特性，如分组校验等，详情请<a href="http://www.ibm.com/developerworks/cn/java/j-lo-beanvalid/">点我</a></p>
+
+:ET

@@ -1,0 +1,150 @@
+I""<ul id="markdown-toc">
+  <li><a href="#登陆" id="markdown-toc-登陆">登陆</a></li>
+  <li><a href="#过程" id="markdown-toc-过程">过程</a></li>
+  <li><a href="#公钥登陆" id="markdown-toc-公钥登陆">公钥登陆</a></li>
+  <li><a href="#远程操作" id="markdown-toc-远程操作">远程操作</a></li>
+  <li><a href="#绑定本地端口" id="markdown-toc-绑定本地端口">绑定本地端口</a></li>
+  <li><a href="#本地端口转发" id="markdown-toc-本地端口转发">本地端口转发</a></li>
+  <li><a href="#远程端口转发" id="markdown-toc-远程端口转发">远程端口转发</a></li>
+  <li><a href="#其他参数" id="markdown-toc-其他参数">其他参数</a></li>
+</ul>
+
+<h2 id="登陆">登陆</h2>
+
+<p><strong><code class="highlighter-rouge">-p</code>指定主机的端口</strong></p>
+
+<p><code class="highlighter-rouge">$ ssh -p port user@host</code></p>
+
+<p><strong>默认端口为22</strong></p>
+
+<p><code class="highlighter-rouge">$ ssh user@host</code></p>
+
+<p><strong>默认使用本机用户名</strong></p>
+
+<p><code class="highlighter-rouge">$ ssh host</code></p>
+
+<h2 id="过程">过程</h2>
+
+<ol>
+  <li>
+    <p>远程主机接收到用户的登陆请求，把自己的公钥发给用户</p>
+  </li>
+  <li>
+    <p>用户使用这个公钥，将密码加密后发回来</p>
+  </li>
+  <li>
+    <p>远程主机用自己的私钥，解密登陆密码，如果密码正确，就同意用户登陆</p>
+  </li>
+</ol>
+
+<blockquote>
+  <p>此处如果有攻击者截取了用户请求，再将自己的公钥发送给用户，然后就可以用自己的私钥解密出用户的私密信息，这就是<code class="highlighter-rouge">中间人攻击</code></p>
+
+  <p>应对的方法：用户首次连接远程主机时，远程主机将发送一段128位长的公钥指纹，用户需要自行与远程主机网站发布的公钥指纹进行对比以判断真伪，当用户信任了此公钥后，它将被保存在<code class="highlighter-rouge">$HOME/.ssh/known_hosts</code>中，下次连接时无需再次确认。</p>
+</blockquote>
+
+<p><br /></p>
+
+<h2 id="公钥登陆">公钥登陆</h2>
+
+<p>原理：用户将自己的<code class="highlighter-rouge">公钥</code>保存在远程主机上，登录时，远程主机向用户发送一段随机码，用户用自己的<code class="highlighter-rouge">私钥</code>签名后，在发回远程主机，远程主机用实现保存的<code class="highlighter-rouge">公钥</code>进行验证，如果成功，表示用户的身份正确，无需输入密码</p>
+
+<ol>
+  <li>
+    <p>用户生成一对自己的密钥</p>
+  </li>
+  <li>
+    <p>将用户的<code class="highlighter-rouge">公钥</code>内容添加到 <code class="highlighter-rouge">$HOME/.ssh/authorized_keys</code>中（可以用<code class="highlighter-rouge">ssh-copy-id user@host</code>进行该操作）</p>
+  </li>
+  <li>
+    <p>重启ssh服务 <code class="highlighter-rouge">/etc/init.d/ssh restart</code></p>
+  </li>
+</ol>
+
+<blockquote>
+  <p>公钥登陆相关配置 /etc/ssh/sshd_config</p>
+
+  <p>RSAAuthentication yes</p>
+
+  <p>PubkeyAuthentication yes</p>
+
+  <p>AuthorizedKeysFile .ssh/authorized_keys</p>
+</blockquote>
+
+<h2 id="远程操作">远程操作</h2>
+
+<ol>
+  <li>
+    <p>直接操作 <code class="highlighter-rouge">$ ssh user@host command</code></p>
+  </li>
+  <li>
+    <p>用户和远程主机之间，建立命令和数据的传输通道</p>
+  </li>
+</ol>
+
+<blockquote>
+  <p>将当前目录下的src文件，复制到远程主机的$HOME目录</p>
+
+  <p><code class="highlighter-rouge">$ tar czv src | ssh user@host "tar xz"</code></p>
+
+  <p>将远程主机$HOME目录下面的src文件，复制到用户的当前目录</p>
+
+  <p><code class="highlighter-rouge">$ ssh user@host "tar cz src" | tar xzv</code></p>
+</blockquote>
+
+<h2 id="绑定本地端口">绑定本地端口</h2>
+
+<p><code class="highlighter-rouge">ssh -D port user@host</code></p>
+
+<p><code class="highlighter-rouge">-D</code> 指定与远程host建立隧道的本地端口</p>
+
+<h2 id="本地端口转发">本地端口转发</h2>
+
+<p>假定<code class="highlighter-rouge">localhost</code>是本地主机，<code class="highlighter-rouge">remotehost</code>是远程主机，这两台主机之间无法连通。但是，另外还有一台<code class="highlighter-rouge">boardhost</code>，可以同时与前面两台主机互连。</p>
+
+<p>在本机键入如下命令</p>
+
+<p><code class="highlighter-rouge">$ ssh -L localPort:remotehost:remotePort boardhost</code></p>
+
+<p><code class="highlighter-rouge">L</code>参数一共接受三个值，分别是”<code class="highlighter-rouge">本地端口:目标主机:目标主机端口</code>”</p>
+
+<p>该命令的意思是指定SSH绑定本地端口<code class="highlighter-rouge">localPort</code>，然后指定<code class="highlighter-rouge">boardhost</code>将所有的数据，转发到目标主机<code class="highlighter-rouge">remotehost</code>的<code class="highlighter-rouge">remotePort</code>端口</p>
+
+<blockquote>
+  <p>remotehost是boardhost 的相对地址(或绝对地址)，因为数据其实是由boardhost 传输到remotehost中的，与localhost无关</p>
+</blockquote>
+
+<p>这样一来<code class="highlighter-rouge">localhost</code>与<code class="highlighter-rouge">remotehost</code>之间将形成私密隧道，访问<code class="highlighter-rouge">localPort</code>就等于访问<code class="highlighter-rouge">remotePort</code></p>
+
+<h2 id="远程端口转发">远程端口转发</h2>
+
+<p>假定<code class="highlighter-rouge">hostA</code>是本地主机，<code class="highlighter-rouge">hostB</code>是远程主机，这两台主机之间无法连通，而且，<code class="highlighter-rouge">boardhost</code>是一台内网主机，即<code class="highlighter-rouge">boardhost</code>可以访问<code class="highlighter-rouge">hostA</code>，但是<code class="highlighter-rouge">hostA</code>无法访问<code class="highlighter-rouge">boardhost</code></p>
+
+<p>在<code class="highlighter-rouge">boardhost</code>键入如下命令</p>
+
+<p><code class="highlighter-rouge">$ ssh -R portA:hostB:portB hostA</code></p>
+
+<p><code class="highlighter-rouge">R</code>参数也是接受三个值，分别是”<code class="highlighter-rouge">远程主机端口:目标主机:目标主机端口</code>“。这条命令的意思，就是让<code class="highlighter-rouge">hostA</code>监听它自己的<code class="highlighter-rouge">portA</code>端口，然后将所有数据经由<code class="highlighter-rouge">boardhost</code>，转发到<code class="highlighter-rouge">hostB</code>的<code class="highlighter-rouge">portB</code>端口。</p>
+
+<p>对<code class="highlighter-rouge">boardhost</code>来说<code class="highlighter-rouge">hostA</code>是远程机器，在<code class="highlighter-rouge">boardhost</code>机器上指定<code class="highlighter-rouge">hostA</code>监听某个端口，称为远程端口转发</p>
+
+<blockquote>
+  <p>远程端口转发的前提条件是，<code class="highlighter-rouge">hostA</code>和<code class="highlighter-rouge">boardhost</code>两台主机都有sshd和ssh客户端，其原理就是：一开始由<code class="highlighter-rouge">hostA</code>充当<code class="highlighter-rouge">Server</code>，<code class="highlighter-rouge">boardhost</code>充当<code class="highlighter-rouge">Client</code>，<code class="highlighter-rouge">boardhost</code>发起请求建立一个连接；连接建立完成后，<code class="highlighter-rouge">hostA</code>就可以使用这个连接将充当<code class="highlighter-rouge">Clinet</code>，将数据转发至<code class="highlighter-rouge">boardhost</code>充当的<code class="highlighter-rouge">Server</code>；<code class="highlighter-rouge">boardhost</code>接收到数据后又需要充当<code class="highlighter-rouge">Client</code>将数据转发到<code class="highlighter-rouge">hostB</code></p>
+</blockquote>
+
+<h2 id="其他参数">其他参数</h2>
+
+<p><code class="highlighter-rouge">N</code>参数，表示只连接远程主机，不打开远程shell；</p>
+
+<p><code class="highlighter-rouge">T</code>参数，表示不为这个连接分配TTY。</p>
+
+<p>这个两个参数可以放在一起用，代表这个SSH连接只用来传数据，不执行远程操作。</p>
+
+<p><code class="highlighter-rouge">$ ssh -NT -D port user@host</code></p>
+
+<p><code class="highlighter-rouge">f</code>参数，表示SSH连接成功后，转入后台运行。这样一来，就可以在不中断SSH连接的情况下，在本地shell中执行其他操作。</p>
+
+<p><code class="highlighter-rouge">$ ssh -f -D port user@host</code></p>
+
+<p>要关闭这个后台连接，就只有用kill命令去杀掉进程。</p>
+:ET

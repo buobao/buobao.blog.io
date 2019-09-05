@@ -1,0 +1,309 @@
+I"~4<ul id="markdown-toc">
+  <li><a href="#1切换模式" id="markdown-toc-1切换模式">1.切换模式</a></li>
+  <li><a href="#2存盘--退出" id="markdown-toc-2存盘--退出">2.存盘 &amp; 退出</a></li>
+  <li><a href="#3插入" id="markdown-toc-3插入">3.插入</a></li>
+  <li><a href="#4删除" id="markdown-toc-4删除">4.删除</a></li>
+  <li><a href="#5拷贝--粘贴" id="markdown-toc-5拷贝--粘贴">5.拷贝 &amp; 粘贴</a></li>
+  <li><a href="#6定位" id="markdown-toc-6定位">6.定位</a>    <ul>
+      <li><a href="#61-行内定位" id="markdown-toc-61-行内定位">6.1 行内定位</a></li>
+      <li><a href="#62-行间定位" id="markdown-toc-62-行间定位">6.2 行间定位</a></li>
+      <li><a href="#63-全文定位" id="markdown-toc-63-全文定位">6.3 全文定位</a></li>
+    </ul>
+  </li>
+  <li><a href="#7undo--redo" id="markdown-toc-7undo--redo">7.Undo &amp; Redo</a></li>
+  <li><a href="#8重复" id="markdown-toc-8重复">8.重复</a></li>
+  <li><a href="#9组合" id="markdown-toc-9组合">9.组合</a></li>
+  <li><a href="#10区域选择" id="markdown-toc-10区域选择">10.区域选择</a></li>
+  <li><a href="#11自动提示" id="markdown-toc-11自动提示">11.自动提示</a></li>
+  <li><a href="#12宏录制" id="markdown-toc-12宏录制">12.宏录制</a></li>
+  <li><a href="#13可视化选择" id="markdown-toc-13可视化选择">13.可视化选择</a></li>
+  <li><a href="#14分屏" id="markdown-toc-14分屏">14.分屏</a></li>
+  <li><a href="#其他" id="markdown-toc-其他">其他</a></li>
+</ul>
+
+<h2 id="1切换模式">1.切换模式</h2>
+
+<p><code class="highlighter-rouge">i</code> → Insert 模式，在光标前插入</p>
+
+<p><code class="highlighter-rouge">ESC</code> → 回到 Normal 模式，Normal 模式下，所有键都是功能键</p>
+
+<p><code class="highlighter-rouge">:help &lt;command&gt;</code> → 显示相关命令的帮助。你也可以就输入 :help 而不跟命令。（退出帮助需要输入:q）</p>
+
+<h2 id="2存盘--退出">2.存盘 &amp; 退出</h2>
+
+<p><code class="highlighter-rouge">:e file</code> → 打开一个文件</p>
+
+<p><code class="highlighter-rouge">:w</code> → 存盘</p>
+
+<p><code class="highlighter-rouge">:saveas file</code> → 另存为</p>
+
+<p><code class="highlighter-rouge">:x</code>， <code class="highlighter-rouge">ZZ</code> 或 <code class="highlighter-rouge">:wq</code> → 保存并退出 (:x 表示仅在需要时保存，ZZ不需要输入冒号并回车)</p>
+
+<p><code class="highlighter-rouge">:q!</code> → 退出不保存</p>
+
+<p><code class="highlighter-rouge">:qa!</code> 强行退出所有的正在编辑的文件，就算别的文件有更改。</p>
+
+<p><code class="highlighter-rouge">:bn</code> 和 <code class="highlighter-rouge">:bp</code> → 你可以同时打开很多文件，使用这两个命令来切换下一个或上一个文件。（<code class="highlighter-rouge">:n</code>到下一个文件）</p>
+
+<h2 id="3插入">3.插入</h2>
+
+<p><code class="highlighter-rouge">a</code> → 在光标后插入</p>
+
+<p><code class="highlighter-rouge">o</code> → 在当前行后插入一个新行</p>
+
+<p><code class="highlighter-rouge">O</code> → 在当前行前插入一个新行</p>
+
+<p><code class="highlighter-rouge">cw</code> → 替换从光标所在位置后到一个单词结尾的字符</p>
+
+<h2 id="4删除">4.删除</h2>
+
+<p><code class="highlighter-rouge">x</code> → 删当前光标所在的一个字符。</p>
+
+<p><code class="highlighter-rouge">dd</code> → 删除当前行，并把删除的行存到剪贴板里</p>
+
+<p><code class="highlighter-rouge">d</code> →  删除，常用于组合</p>
+
+<h2 id="5拷贝--粘贴">5.拷贝 &amp; 粘贴</h2>
+
+<p><code class="highlighter-rouge">yy</code> → 拷贝当前行当行于 ddP</p>
+
+<p><code class="highlighter-rouge">p</code> → 粘贴(小写后)</p>
+
+<p><code class="highlighter-rouge">P</code> → 粘贴(大写前)</p>
+
+<p><code class="highlighter-rouge">y</code> → 拷贝，常用于组合</p>
+
+<blockquote>
+  <p>vim有12个粘贴板，分别是<code class="highlighter-rouge">0 1 2 ... 9 a " ＋</code>用<code class="highlighter-rouge">:reg</code>命令可以查看各个粘贴板里的内容，在vim中简单用<code class="highlighter-rouge">y</code>只是复制到<code class="highlighter-rouge">"</code>粘贴板里，同样用<code class="highlighter-rouge">p</code>粘贴的也是这个粘贴板里的内容。</p>
+
+  <ul>
+    <li>
+      <p><code class="highlighter-rouge">"Ny</code> 指定<code class="highlighter-rouge">N</code>粘贴板复制（主意引号）</p>
+    </li>
+    <li>
+      <p><code class="highlighter-rouge">+</code> 粘贴板是系统粘贴板，<code class="highlighter-rouge">"+y</code>复制，<code class="highlighter-rouge">"+p</code>粘贴</p>
+    </li>
+  </ul>
+</blockquote>
+
+<h2 id="6定位">6.定位</h2>
+
+<p><code class="highlighter-rouge">hjkl</code>  (←↓↑→)</p>
+
+<h3 id="61-行内定位">6.1 行内定位</h3>
+
+<p><code class="highlighter-rouge">0</code> → 数字零，到行头</p>
+
+<p><code class="highlighter-rouge">^</code> → 到本行第一个不是blank字符的位置（所谓blank字符就是空格，tab，换行，回车等）</p>
+
+<p><code class="highlighter-rouge">$</code> → 到本行行尾</p>
+
+<p><code class="highlighter-rouge">g_</code> → 到本行最后一个不是blank字符的位置。</p>
+
+<p><code class="highlighter-rouge">fa</code> → 到本行下一个为<code class="highlighter-rouge">a</code>的字符处</p>
+
+<p><code class="highlighter-rouge">Fa</code> → 到本行上一个为<code class="highlighter-rouge">a</code>的字符处</p>
+
+<p><code class="highlighter-rouge">ta</code> → 到<code class="highlighter-rouge">a</code>前的第一个字符</p>
+
+<p><code class="highlighter-rouge">Ta</code> → 到<code class="highlighter-rouge">a</code>后的第一个字符</p>
+
+<h3 id="62-行间定位">6.2 行间定位</h3>
+
+<p><code class="highlighter-rouge">NG</code> → 到第 <code class="highlighter-rouge">N</code> 行 （命令中的G是大写的）</p>
+
+<p><code class="highlighter-rouge">:N</code> → 到第 <code class="highlighter-rouge">N</code> 行</p>
+
+<p><code class="highlighter-rouge">gg</code> → 到第一行。（相当于1G，或 :1）</p>
+
+<p><code class="highlighter-rouge">G</code> → 到最后一行。</p>
+
+<h3 id="63-全文定位">6.3 全文定位</h3>
+
+<p><code class="highlighter-rouge">w</code> → 到下一个单词的开头。(默认单词形式)</p>
+
+<p><code class="highlighter-rouge">e</code> → 到当前单词的结尾。(默认单词形式)</p>
+
+<p><code class="highlighter-rouge">W</code> → 到下一个单词的开头。（包含空格<code class="highlighter-rouge">?</code>）</p>
+
+<p><code class="highlighter-rouge">E</code> → 到当前单词的结尾。（包含空格<code class="highlighter-rouge">?</code>）</p>
+
+<p><code class="highlighter-rouge">%</code> → 到匹配的括号处，包括 <code class="highlighter-rouge">(  {  [</code>  （需要把光标先移到括号上）</p>
+
+<p><code class="highlighter-rouge">*</code> →  到<code class="highlighter-rouge">下一个</code>匹配单词</p>
+
+<p><code class="highlighter-rouge"># </code> →  到<code class="highlighter-rouge">上一个</code>匹配单词</p>
+
+<p><code class="highlighter-rouge">/pattern</code> → 搜索 <code class="highlighter-rouge">pattern</code> 的字符串（需要回车，如果搜索出多个匹配，可按<code class="highlighter-rouge">n</code>键到下一个）</p>
+
+<h2 id="7undo--redo">7.Undo &amp; Redo</h2>
+
+<p><code class="highlighter-rouge">u</code> → undo</p>
+
+<p><code class="highlighter-rouge">&lt;Ctrl-r&gt;</code>→ redo</p>
+
+<h2 id="8重复">8.重复</h2>
+
+<p><code class="highlighter-rouge">.</code> → (小数点) 可以重复<code class="highlighter-rouge">上一次</code>的命令</p>
+
+<p><code class="highlighter-rouge">N &lt;command&gt;</code> → 重复某个命令<code class="highlighter-rouge">N次</code>，command可以为<code class="highlighter-rouge">.</code></p>
+
+<blockquote>
+  <p>使用<code class="highlighter-rouge">.</code>时，若上一次的命令为<code class="highlighter-rouge">N &lt;command&gt;</code>，则原样执行<code class="highlighter-rouge">N &lt;command&gt;</code></p>
+
+  <p>使用<code class="highlighter-rouge">N &lt;command&gt;</code>时，若<code class="highlighter-rouge">command</code>为<code class="highlighter-rouge">.</code>，则<code class="highlighter-rouge">N</code>会覆盖<code class="highlighter-rouge">.</code>自带的次数</p>
+</blockquote>
+
+<h2 id="9组合">9.组合</h2>
+
+<ul>
+  <li><code class="highlighter-rouge">&lt;start&gt;&lt;command&gt;&lt;end&gt;</code></li>
+</ul>
+
+<blockquote>
+  <p>例如</p>
+
+  <p><code class="highlighter-rouge">0y$</code> → 从行头拷贝到行尾</p>
+
+  <p><code class="highlighter-rouge">ye</code> → 从当前位置拷贝到本单词的最后一个字符</p>
+
+  <p><code class="highlighter-rouge">y2/foo</code> → 拷贝2个foo之间的内容</p>
+</blockquote>
+
+<h2 id="10区域选择">10.区域选择</h2>
+
+<p><code class="highlighter-rouge">&lt;action&gt;Na&lt;object&gt;</code> 包括object</p>
+
+<p><code class="highlighter-rouge">&lt;action&gt;Ni&lt;object&gt;</code> 不包括object</p>
+
+<ul>
+  <li>
+    <p><code class="highlighter-rouge">action</code> 可以是任何的命令，如 d (删除), y (拷贝), v (可以视模式选择)。</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">object</code> 可能是： <code class="highlighter-rouge">w</code> 一个单词， <code class="highlighter-rouge">W</code> 一个以空格为分隔的单词， <code class="highlighter-rouge">s</code> 一个句字， <code class="highlighter-rouge">p</code> 一个段落；也可以是成对出现的字符：<code class="highlighter-rouge">" ' ) } ]</code></p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">N</code> 表示选取第N层，不写默认为1</p>
+  </li>
+</ul>
+
+<h2 id="11自动提示">11.自动提示</h2>
+
+<p><code class="highlighter-rouge">&lt;Ctrl-n&gt;</code> 或 <code class="highlighter-rouge">&lt;Ctrl-p&gt;</code></p>
+
+<h2 id="12宏录制">12.宏录制</h2>
+
+<p><code class="highlighter-rouge">qa</code>  → 把操作记录在寄存器 <code class="highlighter-rouge">a</code></p>
+
+<p><code class="highlighter-rouge">q</code>  → 停止录制</p>
+
+<p><code class="highlighter-rouge">@a</code>  → replay<code class="highlighter-rouge">a</code>寄存器中的宏。</p>
+
+<p><code class="highlighter-rouge">@@</code>  → replay最新录制的宏。</p>
+
+<blockquote>
+  <p>示例：</p>
+
+  <p>在一个只有一行且这一行只有“1”的文本中，键入如下命令：</p>
+
+  <p><code class="highlighter-rouge">qaYp&lt;C-a&gt;q</code></p>
+
+  <p><code class="highlighter-rouge">qa</code> 开始录制</p>
+
+  <p><code class="highlighter-rouge">Yp</code> 复制行.</p>
+
+  <p><code class="highlighter-rouge">&lt;Ctrl-a&gt;</code> 增加1.</p>
+
+  <p><code class="highlighter-rouge">q</code> 停止录制.</p>
+</blockquote>
+
+<p>这个宏的作用是：复制上一行并增加1</p>
+
+<p>测试：</p>
+
+<p>@a → 在1下面写下 2</p>
+
+<p>@@ → 在2 正面写下3</p>
+
+<p>现在做 100@@ 会创建新的100行，并把数据增加到 103.</p>
+
+<h2 id="13可视化选择">13.可视化选择</h2>
+
+<p><code class="highlighter-rouge">v</code> 可视</p>
+
+<p><code class="highlighter-rouge">V</code> 可视行</p>
+
+<p><code class="highlighter-rouge">&lt;Ctrl-v&gt;</code> 可视块</p>
+
+<p>选择了可视化范围后，可做如下操作：</p>
+
+<blockquote>
+  <ul>
+    <li>
+      <p><code class="highlighter-rouge">J</code> → 把所有的行连接起来（变成一行）</p>
+    </li>
+    <li>
+      <p><code class="highlighter-rouge">&lt;</code> → 左缩进</p>
+    </li>
+    <li>
+      <p><code class="highlighter-rouge">&gt;</code> → 右缩进</p>
+    </li>
+    <li>
+      <p><code class="highlighter-rouge">=</code> → 自动缩进</p>
+    </li>
+  </ul>
+</blockquote>
+
+<p>在所有被选择的行后加上点东西：</p>
+
+<p><code class="highlighter-rouge">&lt;Ctrl-v&gt;</code></p>
+
+<p>选中行</p>
+
+<p><code class="highlighter-rouge">$</code> 到行最后（不加将在每行行首编辑）</p>
+
+<p><code class="highlighter-rouge">A</code> 块操作中进入插入模式</p>
+
+<p>输入</p>
+
+<p><code class="highlighter-rouge">ESC</code></p>
+
+<h2 id="14分屏">14.分屏</h2>
+
+<p><code class="highlighter-rouge">split</code> → 创建分屏</p>
+
+<p><code class="highlighter-rouge">vsplit</code> → 创建垂直分屏</p>
+
+<p><code class="highlighter-rouge">&lt;Ctrl-w&gt;方向</code> → 方向可以是 hjkl 或 ←↓↑→，用来切换分屏。</p>
+
+<p><code class="highlighter-rouge">&lt;Ctrl-w&gt;_ </code> → 最大化尺寸</p>
+
+<p><code class="highlighter-rouge">&lt;Ctrl-w&gt;|</code> → 垂直分屏最大化尺寸</p>
+
+<p><code class="highlighter-rouge">&lt;Ctrl-w&gt;+</code> → 增加尺寸</p>
+
+<p><code class="highlighter-rouge">&lt;Ctrl-w&gt;-</code> → 减小尺寸</p>
+
+<hr />
+
+<h2 id="其他">其他</h2>
+
+<p>帮助文档 → <code class="highlighter-rouge">:help usr_02.txt</code></p>
+
+<p>gvim 启动设置（显示行号，配色，代码高亮）：</p>
+
+<blockquote>
+  <p>编辑安装目录下<code class="highlighter-rouge">_vimrc</code>文件</p>
+
+  <p>添加如下代码</p>
+
+  <p>set nu!</p>
+
+  <p>colorscheme desert</p>
+
+  <p>syntax enable</p>
+
+  <p>syntax on</p>
+</blockquote>
+:ET

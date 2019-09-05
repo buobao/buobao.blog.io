@@ -1,0 +1,643 @@
+I"�o<ul id="markdown-toc">
+  <li><a href="#" id="markdown-toc-"><code class="highlighter-rouge">&amp;</code></a></li>
+  <li><a href="#ctrl-z" id="markdown-toc-ctrl-z"><code class="highlighter-rouge">[ctrl]-z</code></a></li>
+  <li><a href="#jobs" id="markdown-toc-jobs"><code class="highlighter-rouge">jobs</code></a></li>
+  <li><a href="#fg" id="markdown-toc-fg"><code class="highlighter-rouge">fg</code></a></li>
+  <li><a href="#bg" id="markdown-toc-bg"><code class="highlighter-rouge">bg</code></a></li>
+  <li><a href="#kill" id="markdown-toc-kill"><code class="highlighter-rouge">kill</code></a></li>
+  <li><a href="#nohup" id="markdown-toc-nohup"><code class="highlighter-rouge">nohup</code></a></li>
+  <li><a href="#pstree" id="markdown-toc-pstree"><code class="highlighter-rouge">pstree</code></a></li>
+  <li><a href="#ps" id="markdown-toc-ps"><code class="highlighter-rouge">ps</code></a>    <ul>
+      <li><a href="#ps--l" id="markdown-toc-ps--l"><code class="highlighter-rouge">ps -l</code></a></li>
+      <li><a href="#ps-aux" id="markdown-toc-ps-aux"><code class="highlighter-rouge">ps aux</code></a></li>
+    </ul>
+  </li>
+  <li><a href="#top" id="markdown-toc-top"><code class="highlighter-rouge">top</code></a></li>
+  <li><a href="#signal" id="markdown-toc-signal"><code class="highlighter-rouge">signal</code></a></li>
+  <li><a href="#kill-1" id="markdown-toc-kill-1"><code class="highlighter-rouge">kill</code></a></li>
+  <li><a href="#killall" id="markdown-toc-killall"><code class="highlighter-rouge">killall</code></a></li>
+  <li><a href="#nice" id="markdown-toc-nice"><code class="highlighter-rouge">nice</code></a></li>
+  <li><a href="#renice" id="markdown-toc-renice"><code class="highlighter-rouge">renice</code></a></li>
+  <li><a href="#free" id="markdown-toc-free"><code class="highlighter-rouge">free</code></a></li>
+  <li><a href="#uname" id="markdown-toc-uname"><code class="highlighter-rouge">uname</code></a></li>
+  <li><a href="#uptime" id="markdown-toc-uptime"><code class="highlighter-rouge">uptime</code></a></li>
+  <li><a href="#netstat" id="markdown-toc-netstat"><code class="highlighter-rouge">netstat</code></a></li>
+  <li><a href="#dmesg" id="markdown-toc-dmesg"><code class="highlighter-rouge">dmesg</code></a></li>
+  <li><a href="#vmstat" id="markdown-toc-vmstat"><code class="highlighter-rouge">vmstat</code></a></li>
+  <li><a href="#fuser" id="markdown-toc-fuser"><code class="highlighter-rouge">fuser</code></a></li>
+  <li><a href="#lsof" id="markdown-toc-lsof"><code class="highlighter-rouge">lsof</code></a></li>
+  <li><a href="#pidof" id="markdown-toc-pidof"><code class="highlighter-rouge">pidof</code></a></li>
+</ul>
+
+<h2><code class="highlighter-rouge">&amp;</code></h2>
+
+<p><strong>将命令放在后台运行</strong></p>
+
+<p>command &amp;</p>
+
+<p>此时将会产生1个任务编号与一个PID，命令执行完成后将会在前台出现提示</p>
+
+<blockquote>
+  <p>后台执行的任务如果存在信息输出，最好将其写入到文件，否则将会在前台显示，影响操作</p>
+</blockquote>
+
+<hr />
+
+<h2 id="ctrl-z"><code class="highlighter-rouge">[ctrl]-z</code></h2>
+
+<p><strong>将命令放在后台暂停</strong></p>
+
+<p>此时将会产生1个任务编号及其命令</p>
+
+<hr />
+
+<h2 id="jobs"><code class="highlighter-rouge">jobs</code></h2>
+
+<p><strong>查看后台任务状态</strong></p>
+
+<p>[root@www ~]#  <code class="highlighter-rouge">jobs [-lrs]</code></p>
+
+<p>选项与参数：</p>
+
+<p><code class="highlighter-rouge">-l</code>  ：除了列出 job number 与命令串之外，同时列出 PID 的号码；</p>
+
+<p><code class="highlighter-rouge">-r</code>  ：仅列出正在背景 run 的工作；</p>
+
+<p><code class="highlighter-rouge">-s</code>  ：仅列出正在背景当中暂停 (stop) 的工作。</p>
+
+<blockquote>
+  <p><code class="highlighter-rouge">+</code> 代表最近被放到背景的工作号码， <code class="highlighter-rouge">-</code> 代表最近最后第二个被放置到背景中的工作号码，其余没有符号</p>
+</blockquote>
+
+<hr />
+
+<h2 id="fg"><code class="highlighter-rouge">fg</code></h2>
+
+<p><strong>将后台任务放到前台</strong></p>
+
+<p>[root@www ~]#  <code class="highlighter-rouge">fg %jobnumber</code></p>
+
+<p>选项与参数：</p>
+
+<p><code class="highlighter-rouge">%jobnumber</code> ：jobnumber 为任务号码(数字)，那个 % 是可有可无的！</p>
+
+<hr />
+
+<h2 id="bg"><code class="highlighter-rouge">bg</code></h2>
+
+<p><strong>将后台暂停的任务变为运行中</strong></p>
+
+<p>[root@www ~]#  <code class="highlighter-rouge">bg %jobnumber</code></p>
+
+<hr />
+
+<h2 id="kill"><code class="highlighter-rouge">kill</code></h2>
+
+<p><strong>移除任务</strong></p>
+
+<p>[root@www ~]# <code class="highlighter-rouge">kill -signal %jobnumber</code></p>
+
+<p>[root@www ~]# <code class="highlighter-rouge">kill -l</code></p>
+
+<p>选项与参数：</p>
+
+<p><code class="highlighter-rouge">-l</code>  ：这个是 L 的小写，列出目前 kill 能够使用的讯号 (signal) 有哪些</p>
+
+<p><code class="highlighter-rouge">signal</code> ：代表给予后面接的那个工作什么样的指示罗！用 man 7 signal 可知：</p>
+
+<blockquote>
+  <p><code class="highlighter-rouge">-1</code> ：重新读取一次参数的配置档 (类似 reload)；</p>
+
+  <p><code class="highlighter-rouge">-2</code> ：代表与由键盘输入 [ctrl]-c 同样的动作；</p>
+
+  <p><code class="highlighter-rouge">-9</code> ：立刻强制删除一个工作；</p>
+
+  <p><code class="highlighter-rouge">-15</code>：以正常的程序方式终止一项工作。与 -9 是不一样的。</p>
+</blockquote>
+
+<hr />
+
+<h2 id="nohup"><code class="highlighter-rouge">nohup</code></h2>
+
+<p><strong>离线任务</strong></p>
+
+<blockquote>
+  <p><code class="highlighter-rouge">!特别说明</code> 前面的几个命令中所谓的”背景”，都是指终端机背景(不会被ctrl+c中断)，并非系统背景，一旦退出终端，任务立即终止。<code class="highlighter-rouge">nohup</code>可以在退出终端后继续执行任务。</p>
+</blockquote>
+
+<p>[root@www ~]#  <code class="highlighter-rouge">nohup</code> [命令与参数]   &lt;==在终端机前台中工作</p>
+
+<p>[root@www ~]#  <code class="highlighter-rouge">nohup</code> [命令与参数] &amp; &lt;==在终端机后台中工作</p>
+
+<hr />
+
+<h2 id="pstree"><code class="highlighter-rouge">pstree</code></h2>
+
+<p><strong>显示进程树</strong></p>
+
+<p>[root@www ~]#  <code class="highlighter-rouge">pstree [-A|U] [-up]</code></p>
+
+<p>选项与参数：</p>
+
+<p><code class="highlighter-rouge">-A</code>  ：各程序树之间的连接以 ASCII 字节来连接；</p>
+
+<p><code class="highlighter-rouge">-U</code>  ：各程序树之间的连接以万国码的字节来连接。在某些终端介面下可能会有错误；</p>
+
+<p><code class="highlighter-rouge">-p</code>  ：并同时列出每个 process 的 PID；</p>
+
+<p><code class="highlighter-rouge">-u</code>  ：并同时列出每个 process 的所属帐号名称。</p>
+
+<hr />
+
+<h2 id="ps"><code class="highlighter-rouge">ps</code></h2>
+
+<p><strong>将某个时间点的程序运行情况撷取下来</strong></p>
+
+<p>[root@www ~]#  <code class="highlighter-rouge">ps aux</code>  &lt;==观察系统所有的程序数据</p>
+
+<p>[root@www ~]#  <code class="highlighter-rouge">ps -lA</code>  &lt;==也是能够观察所有系统的数据</p>
+
+<p>[root@www ~]#  <code class="highlighter-rouge">ps axjf</code> &lt;==连同部分程序树状态</p>
+
+<p>选项与参数：</p>
+
+<p><code class="highlighter-rouge">-A</code>  ：所有的 process 均显示出来，与 -e 具有同样的效用；</p>
+
+<p><code class="highlighter-rouge">-a</code>  ：不与 terminal 有关的所有 process ；</p>
+
+<p><code class="highlighter-rouge">-u</code>  ：有效使用者 (effective user) 相关的 process ；</p>
+
+<p><code class="highlighter-rouge">x</code>   ：通常与 a 这个参数一起使用，可列出较完整资讯。</p>
+
+<p>输出格式规划：</p>
+
+<p><code class="highlighter-rouge">l</code>   ：较长、较详细的将该 PID 的的资讯列出；</p>
+
+<p><code class="highlighter-rouge">j</code>   ：工作的格式 (jobs format)</p>
+
+<p><code class="highlighter-rouge">-f</code>  ：做一个更为完整的输出。</p>
+
+<hr />
+
+<h3 id="ps--l"><code class="highlighter-rouge">ps -l</code></h3>
+
+<p><strong>仅观察自己的 bash 相关程序</strong></p>
+
+<p><code class="highlighter-rouge">F</code>：代表这个程序旗标 (process flags)，说明这个程序的总结权限，常见号码有：</p>
+
+<blockquote>
+  <p>若为 <code class="highlighter-rouge">4</code> 表示此程序的权限为 root ；</p>
+
+  <p>若为 <code class="highlighter-rouge">1</code> 则表示此子程序仅进行复制(fork)而没有实际运行(exec)。</p>
+</blockquote>
+
+<p><code class="highlighter-rouge">S</code>：代表这个程序的状态 (STAT)，主要的状态有：</p>
+
+<blockquote>
+  <p><code class="highlighter-rouge">R</code> (Running)：该程序正在运行中；</p>
+
+  <p><code class="highlighter-rouge">S</code> (Sleep)：该程序目前正在睡眠状态(idle)，但可以被唤醒(signal)。</p>
+
+  <p><code class="highlighter-rouge">D</code> ：不可被唤醒的睡眠状态，通常这支程序可能在等待 I/O 的情况(ex&gt;列印)</p>
+
+  <p><code class="highlighter-rouge">T</code> ：停止状态(stop)，可能是在工作控制(背景暂停)或除错 (traced) 状态；</p>
+
+  <p><code class="highlighter-rouge">Z</code> (Zombie)：僵尸状态，程序已经终止但却无法被移除至内存外。</p>
+</blockquote>
+
+<p><code class="highlighter-rouge">UID/PID/PPID</code>：代表此程序被该 UID 所拥有/程序的 PID 号码/此程序的父程序 PID 号码</p>
+
+<p><code class="highlighter-rouge">C</code>：代表 CPU 使用率，单位为百分比</p>
+
+<p><code class="highlighter-rouge">PRI/NI</code>：Priority/Nice 的缩写，代表此程序被 CPU 所运行的优先顺序，数值越小代表该程序越快被 CPU 运行</p>
+
+<p><code class="highlighter-rouge">ADDR/SZ/WCHAN</code>：都与内存有关，ADDR 是 kernel function，指出该程序在内存的哪个部分，如果是个 running 的程序，一般就会显示『 - 』 / SZ 代表此程序用掉多少内存 / WCHAN 表示目前程序是否运行中，同样的， 若为 - 表示正在运行中。</p>
+
+<p><code class="highlighter-rouge">TTY</code>：登陆者的终端机位置，若为远程登陆则使用动态终端介面 (pts/n)；</p>
+
+<p><code class="highlighter-rouge">TIME</code>：使用掉的 CPU 时间，注意，是此程序实际花费 CPU 运行的时间，而不是系统时间；</p>
+
+<p><code class="highlighter-rouge">CMD</code>：就是 command 的缩写，造成此程序的触发程序之命令为何</p>
+
+<hr />
+
+<h3 id="ps-aux"><code class="highlighter-rouge">ps aux</code></h3>
+
+<p><strong>观察系统所有程序</strong></p>
+
+<p><code class="highlighter-rouge">USER</code>：该 process 属於那个使用者帐号的？</p>
+
+<p><code class="highlighter-rouge">PID</code> ：该 process 的程序识别码。</p>
+
+<p><code class="highlighter-rouge">%CPU</code>：该 process 使用掉的 CPU 资源百分比；</p>
+
+<p><code class="highlighter-rouge">%MEM</code>：该 process 所占用的实体内存百分比；</p>
+
+<p><code class="highlighter-rouge">VSZ</code> ：该 process 使用掉的虚拟内存量 (Kbytes)</p>
+
+<p><code class="highlighter-rouge">RSS</code> ：该 process 占用的固定的内存量 (Kbytes)</p>
+
+<p><code class="highlighter-rouge">TTY</code> ：该 process 是在那个终端机上面运行，若与终端机无关则显示 ?，另外， tty1-tty6 是本机上面的登陆者程序，若为 pts/0 等等的，则表示为由网络连接进主机的程序。</p>
+
+<p><code class="highlighter-rouge">STAT</code>：该程序目前的状态，状态显示与 ps -l 的 S 旗标相同 (R/S/T/Z)</p>
+
+<p><code class="highlighter-rouge">START</code>：该 process 被触发启动的时间；</p>
+
+<p><code class="highlighter-rouge">TIME</code> ：该 process 实际使用 CPU 运行的时间。</p>
+
+<p><code class="highlighter-rouge">COMMAND</code>：该程序的实际命令为何？</p>
+
+<blockquote>
+  <p>ps结果后接 <code class="highlighter-rouge">&lt;defunct&gt;</code> 表示为僵尸程序</p>
+</blockquote>
+
+<hr />
+
+<h2 id="top"><code class="highlighter-rouge">top</code></h2>
+
+<p><strong>动态观察程序的变化</strong></p>
+
+<p>[root@www ~]#  <code class="highlighter-rouge">top [-d 数字] | top [-bnp]</code></p>
+
+<p>选项与参数：</p>
+
+<p><code class="highlighter-rouge">-d</code>  ：后面可以接秒数，就是整个程序画面升级的秒数。默认是 5 秒；</p>
+
+<p><code class="highlighter-rouge">-b</code>  ：以批量的方式运行 top ，还有更多的参数可以使用，通常会搭配数据流重导向来将批量的结果输出成为文件。</p>
+
+<p><code class="highlighter-rouge">-n</code>  ：与 -b 搭配，意义是，需要进行几次 top 的输出结果。</p>
+
+<p><code class="highlighter-rouge">-p</code>  ：指定某些个 PID 来进行观察监测。</p>
+
+<p>在 top 运行过程当中可以使用的按键命令：</p>
+
+<p><code class="highlighter-rouge">?</code> ：显示在 top 当中可以输入的按键命令；</p>
+
+<p><code class="highlighter-rouge">P</code>：以 CPU 的使用资源排序显示；</p>
+
+<p><code class="highlighter-rouge">M</code> ：以 Memory 的使用资源排序显示；</p>
+
+<p><code class="highlighter-rouge">N</code> ：以 PID 来排序喔！</p>
+
+<p><code class="highlighter-rouge">T</code> ：由该 Process 使用的 CPU 时间累积 (TIME+) 排序。</p>
+
+<p><code class="highlighter-rouge">k</code> ：给予某个 PID 一个讯号  (signal)</p>
+
+<p><code class="highlighter-rouge">r</code> ：给予某个 PID 重新制订一个 nice 值。</p>
+
+<p><code class="highlighter-rouge">q</code> ：离开 top 软件的按键。</p>
+
+<hr />
+
+<p><strong><code class="highlighter-rouge">echo $$</code></strong> ( 查看bash的pid)</p>
+
+<hr />
+
+<h2 id="signal"><code class="highlighter-rouge">signal</code></h2>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">代号</th>
+      <th style="text-align: center">名称</th>
+      <th style="text-align: left">内容</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">SIGHUP</td>
+      <td style="text-align: left">启动被终止的程序,可让该 PID 重新读取配置,类似重新启动</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">2</td>
+      <td style="text-align: center">SIGINT</td>
+      <td style="text-align: left">相当於用键盘输入 [ctrl]-c 来中断一个程序</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">9</td>
+      <td style="text-align: center">SIGKILL</td>
+      <td style="text-align: left">强制中断一个程序，尚未完成的部分可能会有遗留物</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">15</td>
+      <td style="text-align: center">SIGTERM</td>
+      <td style="text-align: left">正常结束程序,如果该程序已经发生问题,signal将失效</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">17</td>
+      <td style="text-align: center">SIGSTOP</td>
+      <td style="text-align: left">相当於用键盘输入 [ctrl]-z 来暂停一个程序</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="kill-1"><code class="highlighter-rouge">kill</code></h2>
+
+<p><strong>杀死进程</strong></p>
+
+<p>[root@www ~]# <code class="highlighter-rouge">kill PID</code></p>
+
+<p><code class="highlighter-rouge">!特别说明</code>：kill后面直接加数字表示杀死进程，这与上面的移除任务用法是不同的</p>
+
+<hr />
+
+<h2 id="killall"><code class="highlighter-rouge">killall</code></h2>
+
+<p><strong>按程序启动命令杀死进程</strong></p>
+
+<p>[root@www ~]# ` killall [-iIe] [command name]`</p>
+
+<p>选项与参数：</p>
+
+<p><code class="highlighter-rouge">-i</code>  ：interactive 互动的意思，删除时，会出现提示</p>
+
+<p><code class="highlighter-rouge">-e</code>  ：exact 准确的意思，后面接的 command name要与运行中程序的启动命令一致，但整个完整的命令不能超过 15 个字节(若程序启动时使用了参数，则程序名与后面接的参数作为整体)</p>
+
+<p><code class="highlighter-rouge">-I</code> ：命令名称(可能含参数)忽略大小写。</p>
+
+<hr />
+
+<h2 id="nice"><code class="highlighter-rouge">nice</code></h2>
+
+<p><strong>指定nice值启动新程序</strong></p>
+
+<p>[root@www ~]#  <code class="highlighter-rouge">nice [-n 数字] command</code></p>
+
+<p>选项与参数：</p>
+
+<p><code class="highlighter-rouge">-n</code>  ：后面接一个数值，数值的范围 -20 ~ 19。</p>
+
+<hr />
+
+<h2 id="renice"><code class="highlighter-rouge">renice</code></h2>
+
+<p><strong>重设指定程序的nice值</strong></p>
+
+<p>[root@www ~]#  <code class="highlighter-rouge">renice [number] PID</code></p>
+
+<p>选项与参数：</p>
+
+<p><code class="highlighter-rouge">PID</code> ：某个程序的 ID</p>
+
+<hr />
+
+<h2 id="free"><code class="highlighter-rouge">free</code></h2>
+
+<p><strong>观察内存使用情况</strong></p>
+
+<p>[root@www ~]#  <code class="highlighter-rouge">free [-b|-k|-m|-g] [-t]</code></p>
+
+<p>选项与参数：</p>
+
+<p>默认单位为 Kbytes，可以使用 <code class="highlighter-rouge">-b</code>(bytes),<code class="highlighter-rouge">-m</code>(Mbytes),<code class="highlighter-rouge">-k</code>(Kbytes),<code class="highlighter-rouge">-g</code>(Gbytes) 来显示单位</p>
+
+<p><code class="highlighter-rouge">-t</code> ：显示实体内存与 swap 的总量。</p>
+
+<hr />
+
+<h2 id="uname"><code class="highlighter-rouge">uname</code></h2>
+
+<p><strong>查看系统核心信息</strong></p>
+
+<p>[root@www ~]#  <code class="highlighter-rouge">uname [-asrmpi]</code></p>
+
+<p>选项与参数：</p>
+
+<p><code class="highlighter-rouge">-a</code>  ：所有系统相关的资讯，包括底下的数据都会被列出来；</p>
+
+<p><code class="highlighter-rouge">-s</code>  ：系统核心名称</p>
+
+<p><code class="highlighter-rouge">-r</code> ：核心的版本</p>
+
+<p><code class="highlighter-rouge">-m</code>  ：本系统的硬件名称，例如 i686 或 x86_64 等；</p>
+
+<p><code class="highlighter-rouge">-p</code>  ：CPU 的类型，与 -m 类似，只是显示的是 CPU 的类型！</p>
+
+<p><code class="highlighter-rouge">-i</code>  ：硬件的平台 (ix86)</p>
+
+<hr />
+
+<h2 id="uptime"><code class="highlighter-rouge">uptime</code></h2>
+
+<p><strong>观察系统启动时间与工作负载</strong></p>
+
+<hr />
+
+<h2 id="netstat"><code class="highlighter-rouge">netstat</code></h2>
+
+<p><strong>追踪网络与Socket</strong></p>
+
+<p>[root@www ~]#  <code class="highlighter-rouge">netstat -[atunlp]</code></p>
+
+<p>选项与参数：</p>
+
+<p><code class="highlighter-rouge">-a</code>  ：将目前系统上所有的连线、监听、Socket 数据都列出来</p>
+
+<p><code class="highlighter-rouge">-t</code>  ：列出 tcp 网络封包的数据</p>
+
+<p><code class="highlighter-rouge">-u</code>  ：列出 udp 网络封包的数据</p>
+
+<p><code class="highlighter-rouge">-n</code>  ：不以程序的服务名称，以端口号 (port number) 来显示；</p>
+
+<p><code class="highlighter-rouge">-l</code> ：列出目前正在网络监听 (listen) 的服务；</p>
+
+<p><code class="highlighter-rouge">-p</code> ：列出该网络服务的程序 PID</p>
+
+<p>网络参数</p>
+
+<p><code class="highlighter-rouge">Proto</code> ：网络的封包协议，主要分为 TCP 与 UDP 封包，相关数据请参考服务器篇；</p>
+
+<p><code class="highlighter-rouge">Recv-Q</code>：非由使用者程序连结到此 socket 的复制的总 bytes 数；</p>
+
+<p><code class="highlighter-rouge">Send-Q</code>：非由远程主机传送过来的 acknowledged 总 bytes 数；</p>
+
+<p><code class="highlighter-rouge">Local Address</code> ：本地端的 IP:port 情况</p>
+
+<p><code class="highlighter-rouge">Foreign Address</code>：远程主机的 IP:port 情况</p>
+
+<p><code class="highlighter-rouge">State</code> ：连线状态，主要有创建(ESTABLISED)及监听(LISTEN)；</p>
+
+<p>本机程序</p>
+
+<p><code class="highlighter-rouge">Proto</code> ：一般就是 unix 啦；</p>
+
+<p><code class="highlighter-rouge">RefCnt</code>：连接到此 socket 的程序数量；</p>
+
+<p><code class="highlighter-rouge">Flags</code> ：连线的旗标；</p>
+
+<p><code class="highlighter-rouge">Type</code> ：socket 存取的类型。主要有确认连线的 STREAM 与不需确认的 DGRAM 两种；</p>
+
+<p><code class="highlighter-rouge">State</code> ：若为 CONNECTED 表示多个程序之间已经连线创建。</p>
+
+<p><code class="highlighter-rouge">Path</code> ：连接到此 socket 的相关程序的路径！或者是相关数据输出的路径。</p>
+
+<hr />
+
+<h2 id="dmesg"><code class="highlighter-rouge">dmesg</code></h2>
+
+<p><strong>查看核心产生的信息</strong></p>
+
+<hr />
+
+<h2 id="vmstat"><code class="highlighter-rouge">vmstat</code></h2>
+
+<p><strong>侦测系统资源变化</strong></p>
+
+<p>[root@www ~]#  <code class="highlighter-rouge">vmstat [-a] [间隔时间] [总次数]]</code> &lt;==CPU/内存等资讯</p>
+
+<p>[root@www ~]# ` vmstat [-fs]`                    &lt;==内存相关</p>
+
+<p>[root@www ~]#  <code class="highlighter-rouge">vmstat [-S 单位]</code>                 &lt;==配置显示数据的单位</p>
+
+<p>[root@www ~]#  <code class="highlighter-rouge">vmstat [-d]</code>                       &lt;==与磁碟有关</p>
+
+<p>[root@www ~]#  <code class="highlighter-rouge">vmstat [-p 分割槽]</code>                &lt;==与磁碟有关</p>
+
+<p>选项与参数：</p>
+
+<p><code class="highlighter-rouge">-a</code>  ：使用 inactive/active(活跃与否) 取代 buffer/cache 的内存输出资讯；</p>
+
+<p><code class="highlighter-rouge">-f</code>  ：启动到目前为止，系统复制 (fork) 的程序数；</p>
+
+<p><code class="highlighter-rouge">-s</code>  ：将一些事件 (启动至目前为止) 导致的内存变化情况列表说明；</p>
+
+<p><code class="highlighter-rouge">-S</code>  ：后面可以接单位，让显示的数据有单位。例如 K/M 取代 bytes 的容量；</p>
+
+<p><code class="highlighter-rouge">-d</code>  ：列出磁碟的读写总量统计表</p>
+
+<p><code class="highlighter-rouge">-p</code>  ：后面列出分割槽，可显示该分割槽的读写总量统计表</p>
+
+<blockquote>
+  <p>内存栏位 (<code class="highlighter-rouge">procs</code>) 的项目分别为：</p>
+</blockquote>
+
+<blockquote>
+  <blockquote>
+    <p><code class="highlighter-rouge">r</code> ：等待运行中的程序数量；<code class="highlighter-rouge">b</code>：不可被唤醒的程序数量。这两个项目越多，代表系统越忙碌 (因为系统太忙，所以很多程序就无法被运行或一直在等待而无法被唤醒之故)。</p>
+  </blockquote>
+</blockquote>
+
+<blockquote>
+  <p>内存栏位 (<code class="highlighter-rouge">memory</code>) 项目分别为：</p>
+</blockquote>
+
+<blockquote>
+  <blockquote>
+    <p><code class="highlighter-rouge">swpd</code>：虚拟内存被使用的容量； <code class="highlighter-rouge">free</code>：未被使用的内存容量； <code class="highlighter-rouge">buff</code>：用於缓冲内存； <code class="highlighter-rouge">cache</code>：用於高速缓存。 这部份则与 <code class="highlighter-rouge">free</code> 是相同的。</p>
+  </blockquote>
+</blockquote>
+
+<blockquote>
+  <p>内存置换空间 (<code class="highlighter-rouge">swap</code>) 的项目分别为：</p>
+</blockquote>
+
+<blockquote>
+  <blockquote>
+    <p><code class="highlighter-rouge">si</code>：由磁碟中将程序取出的量； <code class="highlighter-rouge">so</code>：由於内存不足而将没用到的程序写入到磁碟的 <code class="highlighter-rouge">swap</code> 的容量。 如果 si/so 的数值太大，表示内存内的数据常常得在磁碟与主内存之间传来传去，系统效能会很差！</p>
+  </blockquote>
+</blockquote>
+
+<blockquote>
+  <p>磁碟读写 (<code class="highlighter-rouge">io</code>) 的项目分别为：</p>
+</blockquote>
+
+<blockquote>
+  <blockquote>
+    <p><code class="highlighter-rouge">bi</code>：由磁碟写入的区块数量； <code class="highlighter-rouge">bo</code>：写入到磁碟去的区块数量。如果这部份的值越高，代表系统的 I/O 非常忙碌！</p>
+  </blockquote>
+</blockquote>
+
+<blockquote>
+  <p>系统 (<code class="highlighter-rouge">system</code>) 的项目分别为：</p>
+</blockquote>
+
+<blockquote>
+  <blockquote>
+    <p><code class="highlighter-rouge">in</code>：每秒被中断的程序次数； <code class="highlighter-rouge">cs</code>：每秒钟进行的事件切换次数；这两个数值越大，代表系统与周边设备的沟通非常频繁！ 这些周边设备当然包括磁碟、网络卡、时间钟等。</p>
+  </blockquote>
+</blockquote>
+
+<blockquote>
+  <p><code class="highlighter-rouge">CPU</code> 的项目分别为：</p>
+</blockquote>
+
+<blockquote>
+  <blockquote>
+    <p><code class="highlighter-rouge">us</code>：非核心层的 CPU 使用状态； <code class="highlighter-rouge">sy</code>：核心层所使用的 CPU 状态； <code class="highlighter-rouge">id</code>：闲置的状态； <code class="highlighter-rouge">wa</code>：等待 I/O 所耗费的 CPU 状态； <code class="highlighter-rouge">st</code>：被虚拟机器 (virtual machine) 所盗用的 CPU 使用状态 (2.6.11 以后才支持)。</p>
+  </blockquote>
+</blockquote>
+
+<hr />
+
+<h2 id="fuser"><code class="highlighter-rouge">fuser</code></h2>
+
+<p><strong>查看使用指定的文件或文件系统的进程</strong></p>
+
+<p>[root@www ~]#  <code class="highlighter-rouge">fuser [-umv] [-k [i] [-signal]]</code> file/dir</p>
+
+<p>选项与参数：</p>
+
+<p><code class="highlighter-rouge">-u</code> ：除了程序的 PID 之外，同时列出该程序的拥有者；</p>
+
+<p><code class="highlighter-rouge">-m</code>  ：后面接的那个档名会主动的上提到该文件系统的最顶层，对 umount 不成功很有效！</p>
+
+<p><code class="highlighter-rouge">-v</code>  ：可以列出每个文件与程序还有命令的完整相关性！</p>
+
+<p><code class="highlighter-rouge">-k</code>  ：找出使用该文件/目录的 PID ，并试图以 SIGKILL 这个讯号给予该 PID；</p>
+
+<p><code class="highlighter-rouge">-i</code>  ：必须与 -k 配合，在删除 PID 之前会先询问使用者意愿！</p>
+
+<p><code class="highlighter-rouge">-signal</code>：例如 -1 -15 等等，若不加的话，默认是 SIGKILL (-9) 罗！</p>
+
+<blockquote>
+  <p>权限:</p>
+</blockquote>
+
+<p><code class="highlighter-rouge">c</code> ：此程序在当前的目录下(非次目录)；</p>
+
+<p><code class="highlighter-rouge">e</code> ：可被触发为运行状态；</p>
+
+<p><code class="highlighter-rouge">f</code> ：是一个被开启的文件；</p>
+
+<p><code class="highlighter-rouge">r</code> ：代表顶层目录 (root directory)；</p>
+
+<p><code class="highlighter-rouge">F</code> ：该文件被开启了，不过在等待回应中；</p>
+
+<p><code class="highlighter-rouge">m</code> ：可能为分享的动态函式库；</p>
+
+<hr />
+
+<h2 id="lsof"><code class="highlighter-rouge">lsof</code></h2>
+
+<p><strong>列出由程序开启的文件</strong></p>
+
+<p>[root@www ~]#  <code class="highlighter-rouge">lsof [-aUu] [+d]</code></p>
+
+<p>选项与参数：</p>
+
+<p><code class="highlighter-rouge">-a</code>  ：多项数据需要『同时成立』才显示出结果时！（内连接<code class="highlighter-rouge">？</code>）</p>
+
+<p><code class="highlighter-rouge">-U</code>  ：仅列出 Unix like 系统的 socket 文件类型；</p>
+
+<p><code class="highlighter-rouge">-u</code>  ：后面接 username，列出该使用者相关程序所开启的文件；</p>
+
+<p><code class="highlighter-rouge">+d</code>  ：后面接目录，即找出某个目录底下已经被开启的文件！</p>
+
+<hr />
+
+<h2 id="pidof"><code class="highlighter-rouge">pidof</code></h2>
+
+<p><strong>找出某个正在的运行程序的pid</strong></p>
+
+<p>[root@www ~]#  <code class="highlighter-rouge">pidof [-sx] program_name...</code></p>
+
+<p>选项与参数：</p>
+
+<p><code class="highlighter-rouge">-s</code>  ：仅列出一个 PID 而不列出所有的 PID</p>
+
+<p><code class="highlighter-rouge">-x</code>  ：同时列出该 program name 可能的 PPID 那个程序的 PID</p>
+
+:ET

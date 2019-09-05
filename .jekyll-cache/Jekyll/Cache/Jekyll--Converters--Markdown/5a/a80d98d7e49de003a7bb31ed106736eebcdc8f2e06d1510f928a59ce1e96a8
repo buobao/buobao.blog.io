@@ -1,0 +1,90 @@
+I"�+<ul id="markdown-toc">
+  <li><a href="#线程池" id="markdown-toc-线程池">线程池</a></li>
+  <li><a href="#线程池消费拆分任务" id="markdown-toc-线程池消费拆分任务">线程池消费拆分任务</a></li>
+  <li><a href="#线程池消费合并任务" id="markdown-toc-线程池消费合并任务">线程池消费合并任务</a></li>
+  <li><a href="#测试" id="markdown-toc-测试">测试</a></li>
+</ul>
+
+<p>这是<a href="http://bit-ranger.github.io/blog/2018-03-26/large-file-diff">上一篇</a>的续作，对于这个算法，其中可以同时进行的部分有</p>
+<ol>
+  <li>拆分后对每一个块的排序可以同时进行</li>
+  <li>合并时的不同范围之间可以同时进行，例如拆分为10个小块，那么1-5小块的合并跟6-10小块的合并过程可以同时进行</li>
+  <li>合并的不同阶段之间不可以同时进行，因为不同阶段之间有先后顺序</li>
+  <li>不存在对同一条数据的修改，所以无需进行并发控制</li>
+</ol>
+
+<h1 id="线程池">线程池</h1>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">this</span><span class="o">.</span><span class="na">threadPoolExecutor</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ThreadPoolExecutor</span><span class="o">(</span><span class="mi">8</span><span class="o">,</span> <span class="mi">8</span><span class="o">,</span> <span class="mi">10L</span><span class="o">,</span> <span class="nc">TimeUnit</span><span class="o">.</span><span class="na">SECONDS</span><span class="o">,</span>
+    <span class="k">new</span> <span class="nc">LinkedBlockingQueue</span><span class="o">&lt;&gt;(</span><span class="mi">8</span><span class="o">),</span>
+    <span class="k">new</span> <span class="nf">CustomizableThreadFactory</span><span class="o">(</span><span class="s">"fileSorterTPE-"</span><span class="o">),</span>
+    <span class="k">new</span> <span class="nc">ThreadPoolExecutor</span><span class="o">.</span><span class="na">CallerRunsPolicy</span><span class="o">());</span>
+</code></pre></div></div>
+
+<h1 id="线程池消费拆分任务">线程池消费拆分任务</h1>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">List</span><span class="o">&lt;</span><span class="nc">Future</span><span class="o">&lt;</span><span class="nc">Chunk</span><span class="o">&gt;&gt;</span> <span class="n">splitFutureList</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;&gt;();</span>
+<span class="k">while</span> <span class="o">(</span><span class="kc">true</span><span class="o">){</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="na">readLine</span><span class="o">();</span>
+    <span class="k">if</span><span class="o">(</span><span class="n">line</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">){</span>
+        <span class="n">chunkRows</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">line</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="k">if</span><span class="o">(</span><span class="n">line</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">chunkRows</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">&gt;=</span> <span class="n">initialChunkSize</span><span class="o">){</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">chunkRows</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">){</span>
+            <span class="kd">final</span> <span class="kt">int</span> <span class="n">rn</span> <span class="o">=</span> <span class="n">rowNum</span><span class="o">;</span>
+            <span class="kd">final</span> <span class="nc">List</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">cr</span> <span class="o">=</span> <span class="n">chunkRows</span><span class="o">;</span>
+            <span class="n">rowNum</span> <span class="o">+=</span> <span class="n">chunkRows</span><span class="o">.</span><span class="na">size</span><span class="o">();</span>
+            <span class="n">chunkRows</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;&gt;();</span>
+            <span class="nc">Future</span><span class="o">&lt;</span><span class="nc">Chunk</span><span class="o">&gt;</span> <span class="n">chunk</span> <span class="o">=</span> <span class="n">threadPoolExecutor</span><span class="o">.</span><span class="na">submit</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+                <span class="n">cr</span><span class="o">.</span><span class="na">sort</span><span class="o">(</span><span class="n">comparator</span><span class="o">);</span>
+                <span class="k">return</span> <span class="nf">initialChunk</span><span class="o">(</span><span class="n">rn</span><span class="o">,</span> <span class="n">cr</span><span class="o">,</span> <span class="n">file</span><span class="o">);</span>
+            <span class="o">});</span>
+            <span class="n">splitFutureList</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">chunk</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="k">if</span><span class="o">(</span><span class="n">line</span> <span class="o">==</span> <span class="kc">null</span><span class="o">){</span>
+        <span class="k">break</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+<span class="n">chunkList</span> <span class="o">=</span> <span class="n">splitFutureList</span><span class="o">.</span><span class="na">stream</span><span class="o">().</span><span class="na">map</span><span class="o">(</span><span class="k">this</span><span class="o">::</span><span class="n">get</span><span class="o">).</span><span class="na">collect</span><span class="o">(</span><span class="nc">Collectors</span><span class="o">.</span><span class="na">toList</span><span class="o">());</span>
+</code></pre></div></div>
+
+<h1 id="线程池消费合并任务">线程池消费合并任务</h1>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">currentLevel</span> <span class="o">=</span> <span class="no">INITIAL_CHUNK_LEVEL</span><span class="o">;</span>
+<span class="nc">List</span><span class="o">&lt;</span><span class="nc">Future</span><span class="o">&lt;</span><span class="nc">Chunk</span><span class="o">&gt;&gt;</span> <span class="n">mergeFutureList</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;&gt;();</span>
+<span class="k">while</span> <span class="o">(</span><span class="kc">true</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">//从队列中获取一组chunk</span>
+    <span class="nc">List</span><span class="o">&lt;</span><span class="nc">Chunk</span><span class="o">&gt;</span> <span class="n">pollChunks</span> <span class="o">=</span> <span class="n">pollChunks</span><span class="o">(</span><span class="n">chunkQueue</span><span class="o">,</span> <span class="n">currentLevel</span><span class="o">);</span>
+    <span class="c1">//未取到同级chunk, 表示此级别应合并完成</span>
+    <span class="k">if</span> <span class="o">(</span><span class="nc">CollectionUtils</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">(</span><span class="n">pollChunks</span><span class="o">))</span> <span class="o">{</span>
+        <span class="n">mergeFutureList</span><span class="o">.</span><span class="na">stream</span><span class="o">().</span><span class="na">map</span><span class="o">(</span><span class="k">this</span><span class="o">::</span><span class="n">get</span><span class="o">).</span><span class="na">forEach</span><span class="o">(</span><span class="nl">chunkQueue:</span><span class="o">:</span><span class="n">add</span><span class="o">);</span>
+        <span class="n">mergeFutureList</span><span class="o">.</span><span class="na">clear</span><span class="o">();</span>
+        <span class="c1">//chunkQueue 中只有一个元素，表示此次合并是最终合并</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">chunkQueue</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">==</span> <span class="mi">1</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">break</span><span class="o">;</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="n">currentLevel</span><span class="o">++;</span>
+            <span class="k">continue</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="nc">Future</span><span class="o">&lt;</span><span class="nc">Chunk</span><span class="o">&gt;</span> <span class="n">chunk</span> <span class="o">=</span> <span class="n">threadPoolExecutor</span><span class="o">.</span><span class="na">submit</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="n">merge</span><span class="o">(</span><span class="n">pollChunks</span><span class="o">,</span> <span class="n">original</span><span class="o">));</span>
+    <span class="n">mergeFutureList</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">chunk</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>可以看到合并任务与拆分任务有些不同，拆分任务是在循环退出后才执行<code class="highlighter-rouge">Future.get</code>，因为拆分不用考虑先后；
+而合并任务在每次获取当前阶段的chunk结束时执行<code class="highlighter-rouge">Future.get</code>，这样才能避免不同的阶段之间产生混乱。</p>
+
+<p><a href="https://github.com/bit-ranger/architecture/blob/d9083d2fb71763557e6d4eb6875f9c001fd41596/core/src/main/java/com/rainyalley/architecture/core/arithmetic/sort/FileSorter.java">完整代码</a></p>
+
+<h1 id="测试">测试</h1>
+
+<p>在上一篇中，使用单线程，1千万条数据排序耗时13秒；
+在同一台电脑上，使用多线程后，耗时6秒，时间减少了一半。</p>
+
+<p>在拆分过程中，每个线程都要在内存中进行排序，
+在拆分和合并过程中，每个线程都要持有自己的读写缓冲区，这无疑会增大内存的使用量。</p>
+
+<p>究竟消耗了多少内存，我们可以使用<code class="highlighter-rouge">Java Mission Control</code>来观察，jdk8的bin目录下<code class="highlighter-rouge">jmc.exe</code>即为此工具。</p>
+:ET

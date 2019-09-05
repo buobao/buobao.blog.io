@@ -1,0 +1,32 @@
+I"#	<p>今天打算在项目中加入数据验证功能，具体可参考 <a href="http://jinnianshilongnian.iteye.com/blog/1733708">数据验证</a></p>
+
+<p>过程无须赘述</p>
+
+<p>配置完成后，奇怪的现象发生了，<code class="highlighter-rouge">BindingResult.hasErrors()</code>永远返回false
+<img src="https://bit-ranger.github.io/blog/static/img/mvc-validator/hasErrors.jpg" alt="hasErrors" /></p>
+
+<p>这是什么情况? validator 未指定？我赶紧检查配置：
+<img src="https://bit-ranger.github.io/blog/static/img/mvc-validator/notNull.jpg" alt="notNull" /></p>
+
+<p><img src="https://bit-ranger.github.io/blog/static/img/mvc-validator/driven.jpg" alt="driven" />
+配置没有问题，日志能够正常打印，且没有错误，排除类加载失败的可能。</p>
+
+<p>上google搜索一下！
+<img src="https://bit-ranger.github.io/blog/static/img/mvc-validator/google.jpg" alt="google" />
+翻看了第一页的回复，大多来自stackoverflow，无非是让你引入包, 加配置, 我项目里配置符合这些回复的要求, 所以需要另想办法</p>
+
+<p>自己动手吧!我加入如下代码，以验证validator是否被正确加载
+<img src="https://bit-ranger.github.io/blog/static/img/mvc-validator/initBinder.jpg" alt="initBinder" />
+validator果然为null, 且如果拿到validator对象并set进去，就可以解决<code class="highlighter-rouge">BindingResult.hasErrors()</code>永远返回false的问题,
+然而，这种处理方式需要在每个Controller中写一遍initBinder, 这种方式并不完美。</p>
+
+<p>是什么原因造成validator丢失呢?
+我们知道<code class="highlighter-rouge">annotation-driven</code>会在spring中自动注册多个bean, 详情请移步<a href="https://my.oschina.net/HeliosFly/blog/205343">自动注册</a>
+会不会是项目中存在某些配置覆盖了其中的bean，造成了validator丢失?
+仔细扫描一下配置文件, 发现果然如此, 项目中为了更换json转换器, 自定义了一个bean
+<img src="https://bit-ranger.github.io/blog/static/img/mvc-validator/adapter.jpg" alt="adapter" /></p>
+
+<p>到了这个地步基本上找到原因了，解决方式很简单，将validator绑定起来就可以了
+<img src="https://bit-ranger.github.io/blog/static/img/mvc-validator/validator-config.jpg" alt="validator-config" /></p>
+
+:ET
