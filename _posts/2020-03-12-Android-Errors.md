@@ -1,8 +1,13 @@
-\---
- title: Android Errors
- tags: Android
- categories: Android
- \---
+---
+layout: post
+title: Android Errors
+tags: Android
+categories: Android
+---
+Android常见报错
+
+* TOC 
+{:toc}
 
 ### Q1:Fragment中打开新页面出现报错：Attempt to invoke virtual method 'java.lang.String android.content.Context.getPackageName()' on a null object reference
 
